@@ -8,7 +8,8 @@ the Single Page App developer in developing client-side applications that levera
  
 | Version       | Date          | Changes                            |
 | ------------- | --------------|----------------------------------- |
-| 0.1.0         | 2020MAY11     | Initial Release.                   |
+| 0.1.1         | 2020MAY11     | Initial Release.                   |
+
 
 ## Credit
 Thanks to:
