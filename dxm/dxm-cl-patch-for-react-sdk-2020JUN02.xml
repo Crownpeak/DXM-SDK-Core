@@ -5955,7 +5955,7 @@ namespace Component_Library.Component_Project.Components
 			var first = true;
 			foreach (var component in asset.GetPanels(zone + "_0"))
 			{
-				var componentType = component.Raw["badger_component_type"];
+				var componentType = component.Raw[zone + "_component_type"];
 				if (string.IsNullOrWhiteSpace(componentType) || componentType == "Zone") continue;
 				if (first) first = false;
 				else result.Append(",");
