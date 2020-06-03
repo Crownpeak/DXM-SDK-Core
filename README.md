@@ -10,6 +10,7 @@ the Single Page App developer in developing client-side applications that levera
 | ------------- | --------------|----------------------------------- |
 | 0.1.1         | 2020MAY11     | Initial Release.                   |
 | 0.1.2         | 2020JUN03     | Override for CmsField value        |
+| 0.1.3         | 2020JUN03     | Add HREF to CmsFieldTypes          |
 
 
 ## Credit

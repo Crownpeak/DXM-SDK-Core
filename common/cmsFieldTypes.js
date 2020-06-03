@@ -3,5 +3,6 @@ module.exports = {
     WYSIWYG: 'WYSIWYG',
     DATE: 'DATE',
     DOCUMENT: 'DOCUMENT',
-    IMAGE: 'IMAGE'
+    IMAGE: 'IMAGE',
+    HREF: 'HREF'
 }
