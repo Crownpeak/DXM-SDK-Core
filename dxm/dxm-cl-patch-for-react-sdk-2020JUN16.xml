@@ -401,8 +401,8 @@
   <asset>
     <id>261195</id>
     <label>Widget</label>
-    <template_id>261189</template_id>
-    <template_path>/Component Project/Templates/Component Framework/Component Definition/</template_path>
+    <template_id>261485</template_id>
+    <template_path>/Component Project/Templates/Component Framework/Enhanced/Component Definition/</template_path>
     <template_language>1</template_language>
     <model_id>0</model_id>
     <is_deleted>false</is_deleted>
