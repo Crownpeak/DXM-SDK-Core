@@ -207,6 +207,89 @@ const createOrUpdateModel = async (shortName) => {
     return model.asset;
 };
 
+// #region Component Library patch support
+// Creates a new template asset in the given target folder.
+// @param {string} name             the name of the template to create
+// @param {int}    targetFolderId   the id of the target folder in which to create the new template
+const createTemplateFolder = async (name, targetFolderId) => {
+    const req = new crownpeak.Asset.CreateRequest(
+        name,
+        targetFolderId,
+        0,
+        crownpeak.Util.AssetType.Folder,
+        -1,
+        0,
+        0,
+        crownpeak.Util.AssetSubType.TemplateFolder
+    );
+    let resp = await crownpeak.Asset.create(req);
+    if(resp && resp.ResultCode == 0) {
+        _assetCache[resp.asset.id] = resp.asset;
+    }
+    return resp;
+}
+
+// Creates a new template asset in the given target folder.
+// @param {string} name             the name of the template to create
+// @param {int}    targetFolderId   the id of the target folder in which to create the new template
+const createTemplate = async (name, targetFolderId) => {
+    const req = new crownpeak.Asset.CreateRequest(
+        name,
+        targetFolderId,
+        0,
+        crownpeak.Util.AssetType.Folder,
+        -1,
+        0,
+        0,
+        crownpeak.Util.AssetSubType.Template
+    );
+    let resp = await crownpeak.Asset.create(req);
+    if(resp && resp.ResultCode == 0) {
+        _assetCache[resp.asset.id] = resp.asset;
+    }
+    return resp;
+}
+
+// Creates a new template handler (input.aspx, output.aspx etc.) in the given target template
+// @param {string} name         the name of the new handler to create
+// @param {int}    templateId   the id of the target template
+// @param {string} handlerCode  the complete code for the handler
+const createTemplateHandler = async  (name, templateId, handlerCode) => {
+    const req = new crownpeak.Asset.CreateRequest(
+        name,
+        templateId,
+        0,
+        crownpeak.Util.AssetType.File,
+        1,
+        0,
+        0,
+        crownpeak.Util.AssetSubType.TemplateFile
+    );
+    let resp = await crownpeak.Asset.create(req)
+        .then(resp => {
+            const req = new crownpeak.Asset.UpdateRequest(
+                resp.asset.id,
+                { 'body': handlerCode },
+                []
+            );
+            return crownpeak.Asset.update(req)
+        });
+    if(resp && resp.ResultCode == 0) {
+        _assetCache[resp.asset.id] = resp.asset;
+    }
+    return resp;
+}
+
+// Associate the template with the given templateId with the given asset
+// @param {int} assetId
+// @param {int} templateId
+// @returns 
+const setTemplate = async (assetId, templateId) => {
+    return crownpeak.AssetProperties.setTemplate([assetId], templateId);
+}
+
+//#endregion
+
 const createOrUpdateTemplate = async (shortName, markup, shortWrapperName) => {
     const name = expandName(shortName, ' ') + " Template";
     const wrapperName = expandName(shortWrapperName, ' ') + " Wrapper";
@@ -568,6 +651,12 @@ module.exports = {
     uploadFile: uploadFile,
     expandName: expandName,
     compressName: compressName,
+
+    createFileDirect: createFile,    
+    createTemplateFolder: createTemplateFolder,
+    createTemplate: createTemplate,
+    createTemplateHandler: createTemplateHandler,
+    setTemplate: setTemplate,
 
     saveComponent: createOrUpdateComponent,
     saveComponents: processComponents,
