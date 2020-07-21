@@ -341,39 +341,44 @@ const verifyEnvironment = async () => {
     const total = 11;
     let completed = 0;
     const message = "Verifying environment";
+    let messages = [];
 
     progressBar(message, completed++, total, "Verifying site root");
-    await fatalTest(getSiteRootPath, "Unable to find Site Root");
+    let result = await nonFatalTest(getSiteRootPath, "Unable to find Site Root", messages);
     progressBar(message, completed++, total, "Verifying project");
-    await fatalTest(getProjectPath, "Unable to find Project");
+    result = await nonFatalTest(getProjectPath, "Unable to find Project", messages) && result;
     progressBar(message, completed++, total, "Verifying library");
-    await fatalTest(getLibraryFolder, "Unable to find 'Library' folder");
+    result = await nonFatalTest(getLibraryFolder, "Unable to find 'Library' folder", messages) && result;
     progressBar(message, completed++, total, "Verifying component definitions");
-    await fatalTest(getComponentDefinitionFolder, "Unable to find 'Component Definitions' folder");
+    result = await nonFatalTest(getComponentDefinitionFolder, "Unable to find 'Component Definitions' folder", messages) && result;
     progressBar(message, completed++, total, "Verifying template definitions");
-    await fatalTest(getTemplateDefinitionFolder, "Unable to find 'Template Definitions' folder");
+    result = await nonFatalTest(getTemplateDefinitionFolder, "Unable to find 'Template Definitions' folder", messages) && result;
     progressBar(message, completed++, total, "Verifying wrapper definitions");
-    await fatalTest(getWrapperDefinitionFolder, "Unable to find 'Wrapper Definitions' folder");
+    result = await nonFatalTest(getWrapperDefinitionFolder, "Unable to find 'Wrapper Definitions' folder", messages) && result;
     progressBar(message, completed++, total, "Verifying models");
-    await fatalTest(getModelsFolder, "Unable to find 'Models' folder");
+    result = await nonFatalTest(getModelsFolder, "Unable to find 'Models' folder", messages) && result;
     progressBar(message, completed++, total, "Verifying templates");
-    await fatalTest(getTemplatesFolder, "Unable to find 'Templates' folder");
+    result = await nonFatalTest(getTemplatesFolder, "Unable to find 'Templates' folder", messages) && result;
     progressBar(message, completed++, total, "Verifying enhanced component");
-    await fatalTest(getComponentDefinitionModel, "Unable to find 'Enhanced Component' model");
+    result = await nonFatalTest(getComponentDefinitionModel, "Unable to find 'Enhanced Component' model", messages) && result;
     progressBar(message, completed++, total, "Verifying enhanced template");
-    await fatalTest(getTemplateDefinitionModel, "Unable to find 'Enhanced Template' model");
+    result = await nonFatalTest(getTemplateDefinitionModel, "Unable to find 'Enhanced Template' model", messages) && result;
     progressBar(message, completed++, total, "Verifying wrapper");
-    await fatalTest(getWrapperDefinitionModel, "Unable to find 'Wrapper' model");
+    result = await nonFatalTest(getWrapperDefinitionModel, "Unable to find 'Wrapper' model", messages) && result;
     progressBar(message, completed++, total, "Done", true, true);
-    return true;
+    if (!result && messages.length > 0) {
+        messages.forEach(m => console.error(m));
+    }
+    return result;
 };
 
-const fatalTest = async (fn, message, exitCode = 1) => {
+const nonFatalTest = async (fn, message, messages) => {
     try {
         await fn();
-    } catch (ex) {
-        console.error(message);
-        process.exit(exitCode);
+        return true;
+    } catch (_ex) {
+        messages.push(message);
+        return false;
     }
 };
 
