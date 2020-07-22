@@ -392,8 +392,13 @@ const progressBar = (message, count, total, stepmessage = "", ttyonly = true, fi
         }
         return;
     }
+    const maxWidth = process.stdout?.columns || 999;
     let output = `${message} [${"#".repeat(count)}${"-".repeat(total-count)}] [${count}/${total}] ${stepmessage}`;
     let outputSize = output.length;
+    if (outputSize > maxWidth) {
+        output = output.substring(0, maxWidth - 3) + "...";
+        outputSize = maxWidth;
+    }
     if (count == 0) {
         outputLog = [];
         maxOutputSize = outputSize;
