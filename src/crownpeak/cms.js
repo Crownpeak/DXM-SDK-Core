@@ -31,6 +31,19 @@ const createFile = async (name, folderId, templateId, workflowId) => {
     return crownpeak.Asset.create(request);
 };
 
+const createLibraryClass = async (name, folderId) => {
+    const request = new crownpeak.Asset.CreateRequest(
+        name,
+        folderId,
+        0,
+        crownpeak.Util.AssetType.File,
+        crownpeak.Util.TemplateLanguageType.CSharp,
+        0,
+        0,
+        crownpeak.Util.AssetSubType.TemplateFile);
+    return crownpeak.Asset.create(request);
+}
+
 const createOrUpdateDeveloperCsFile = async (name, folderId, workflowId, content) => {
     let path = await getPath(folderId);
     let result = await exists(path + name);
@@ -206,6 +219,20 @@ const createOrUpdateModel = async (shortName) => {
     }
     return model.asset;
 };
+
+//#region Initialize site root
+/**
+ * Creates a new site root asset with the given name in the given folder. The site root will
+ * be set up with a Component Library configuration.
+ * 
+ * @param {string} siteRootName 
+ * @param {int} rootFolder 
+ */
+const createSiteRoot = async (siteRootName, rootFolder) => {
+    const req = new crownpeak.Asset.CreateSiteRootRequest(siteRootName, rootFolder, true, false, "2.2");
+    return crownpeak.Asset.createSiteRoot(req);
+}
+//#endregion
 
 // #region Component Library patch support
 // Creates a new template asset in the given target folder.
@@ -652,11 +679,14 @@ module.exports = {
     expandName: expandName,
     compressName: compressName,
 
+    createSiteRoot: createSiteRoot,
     createFileDirect: createFile,    
+    createLibraryClass : createLibraryClass,
     createTemplateFolder: createTemplateFolder,
     createTemplate: createTemplate,
     createTemplateHandler: createTemplateHandler,
     setTemplate: setTemplate,
+    recompileLibrary: recompileLibrary,
 
     saveComponent: createOrUpdateComponent,
     saveComponents: processComponents,
