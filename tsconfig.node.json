@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "commonjs",
+    "outDir": "./lib/crownpeak",
+    "lib": ["ES2015", "DOM"],
+    "allowJs": true
+  },
+  "include": ["src/crownpeak"]
+}

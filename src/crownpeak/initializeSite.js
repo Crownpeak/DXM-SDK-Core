@@ -2,8 +2,13 @@
 
 const
     fs = require('fs'),
+    http = require('http'),
+    https = require('https'),
+    path = require('path'),
     xml2js = require('xml2js'),
-    cms = require("./cms");
+    cms = require("./cms"),
+    LATEST_PATCH = "../../dxm/dxm-cl-patch-for-react-sdk-2020JUL28.xml";
+const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 require('dotenv').config();
 
@@ -21,8 +26,8 @@ function Descriptor(id, dependsOn = [], data = null, newId = null) {
 @param {Array<Descriptor>} fulfilledDependencies
 @return {int}
 */
-function nop(desc, fulfilledDependencies) {
-    console.log(`nop ${desc.id} -- ${desc.data.intendedType}`);
+function nop(_desc, _fulfilledDependencies) {
+    //console.log(`nop ${desc.id} -- ${desc.data.intendedType}`);
     return 0;
 }
 
@@ -35,15 +40,15 @@ async function createContentAsset(desc, importTargetFolder, fulfilledDependencie
     const path = importTargetFolder.fullPath + desc.data.path.slice(1);
     const template = fulfilledDependencies.find(d => d.id === desc.data.template_id);
     let resp = await cms.exists(path);
-    if(!resp.exists) {
+    if (!resp.exists) {
         const folder = fulfilledDependencies.find(d => d.id === desc.data.folder_id);
         // NOTE: assumes that all SDK patch assets are NOT in workflow
         let resp = await cms.createFileDirect(desc.data.label, folder.newId, template.newId, null);
-        if(resp.isSuccessful) {
+        if (resp.isSuccessful) {
             desc.newId = resp.asset.id;
         }
         else {
-            console.error(`ERROR: createContentAsset ${desc.data.label} could not be created: ${resp}`);
+            console.error(`PATCH: ERROR: Content asset [${desc.data.label}] could not be created: ${resp}`);
         }
     }
     else {
@@ -51,14 +56,14 @@ async function createContentAsset(desc, importTargetFolder, fulfilledDependencie
     };
     resp = await cms.setTemplate(desc.newId, template.newId);
     
-    if (desc.data.fields.field) {
+    if (desc.data.fields && desc.data.fields.field) {
         const _f = desc.data.fields.field.reduce((a, f) => { a[f.name] = f.value; return a }, {});
         resp = await cms.update(desc.newId, _f);
     }
     else {
-        console.log(`createContentAsset: no fields? ${desc.data}`);
+        //console.log(`PATCH: Created content asset no fields? ${desc.data}`);
     }
-    console.log(`createContentAsset ${desc.id} --> ${desc.newId} ${desc.data.label}`);
+    console.log(`PATCH: Created content asset ${desc.id} --> ${desc.newId} [${desc.data.label}]`);
 }
 
 
@@ -72,19 +77,18 @@ async function createFolder(desc, importTargetFolder, fulfilledDependencies) {
     let resp = await cms.exists(path);
     if (!resp.exists) {
         let parentId = fulfilledDependencies.find(d => d.id === desc.data.folder_id).newId; // null safe?
-//        let modelId = desc.data.model_id ? fulfilledDependencies.find(d => d.id === desc.data.model_id).newId : null;
         resp = await cms.createFolder(desc.data.label, parentId)
         if (resp.isSuccessful) {
             desc.newId = resp.asset.id;
         }
         else {
-            console.error(`Could not create folder -- ${resp.data.label}`);
+            console.error(`PATCH: ERROR: Folder [${resp.data.label}] could not be created: ${resp}`);
         }
     }
     else {
         desc.newId = resp.assetId;
     }
-    console.log(`createFolder ${desc.id} --> ${desc.newId} ${desc.data.label}`);
+    console.log(`PATCH: Created folder ${desc.id} --> ${desc.newId} [${desc.data.label}]`);
 }
 
 /*
@@ -93,15 +97,15 @@ async function createFolder(desc, importTargetFolder, fulfilledDependencies) {
 @return {int}
 */
 async function mapId(desc, importTargetFolder, fulfilledDependencies) {
-    if(!desc.newId) {
+    if (!desc.newId) {
         const path = importTargetFolder.fullPath + desc.data.path.slice(1);
         let resp = await cms.exists(path);
         if (resp.exists) {
             desc.newId = resp.assetId;
-            console.log(`mapId ${desc.id} -- ${desc.newId} ${desc.data.label}`);
+            //console.log(`mapId ${desc.id} -- ${desc.newId} ${desc.data.label}`);
         }
         else {
-            console.error(`mapId ${desc.id} ${desc.data.label} does not exist therefore cannot be mapped`);
+            console.error(`PATCH: ERROR: mapId ${desc.id} [${desc.data.label}] does not exist therefore cannot be mapped`);
         }
     }
 }
@@ -117,19 +121,19 @@ async function createTemplateFolder(desc, importTargetFolder, fulfilledDependenc
 
     if (!resp.exists) {
         const parent = fulfilledDependencies.find(d => d.id === desc.data.folder_id)
-        console.log(`Attempting to create template folder ${desc.data.label} in ${parent.newId}`);
+        //console.log(`Attempting to create template folder ${desc.data.label} in ${parent.newId}`);
         resp = await cms.createTemplateFolder(desc.data.label, parent.newId);
         if (resp.isSuccessful) {
             desc.newId = resp.asset.id;
         }
         else {
-            console.error(`Could not create template folder ${desc.data.label} -- ${resp}`);
+            console.error(`PATCH: ERROR: Template folder [${desc.data.label}] could not be created: ${resp}`);
         }
     }
     else {
         desc.newId = resp.assetId;
     }
-    console.log(`createTemplateFolder ${desc.id} --> ${desc.newId} ${desc.data.label}`);
+    console.log(`PATCH: Created template folder ${desc.id} --> ${desc.newId} [${desc.data.label}]`);
 }
 /*
 @param {Descriptor} desc
@@ -141,19 +145,19 @@ async function createTemplate(desc, importTargetFolder, fulfilledDependencies) {
     let resp = await cms.exists(path);
     if (!resp.exists) {
         const parent = fulfilledDependencies.find(d => d.id === desc.data.folder_id); // null safe?
-        console.log(`Attempting to create template ${desc.data.label} in ${parent.newId}`);
+        //console.log(`Attempting to create template ${desc.data.label} in ${parent.newId}`);
         resp = await cms.createTemplate(desc.data.label, parent.newId)
         if (resp.isSuccessful) {
             desc.newId = resp.asset.id;
         }
         else {
-            console.error(`Could not create template ${desc.data.label} -- ${resp}`);
+            console.error(`PATCH: ERROR: Template [${desc.data.label}] could not be created: ${resp}`);
         }
     }
     else {
         desc.newId = resp.assetId;
     }
-    console.log(`createTemplate ${desc.id} --> ${desc.newId} ${desc.data.label}`);
+    console.log(`PATCH: Created template ${desc.id} --> ${desc.newId} [${desc.data.label}]`);
 }
 
 /*
@@ -172,13 +176,13 @@ async function createTemplateHandler(desc, importTargetFolder, fulfilledDependen
             desc.newId = resp.asset.id;
         }
         else {
-            console.error(`Could not create template handler ${desc.data.label}-- ${resp}`);
+            console.error(`PATCH: ERROR: Template handler [${desc.data.label}] could not be created: ${resp}`);
         }
     }
     else {
         desc.newId = resp.assetId;
     }
-    console.log(`createTemplateHandler ${desc.id} --> ${desc.newId} ${desc.data.label}`);
+    console.log(`PATCH: Created template handler ${desc.id} --> ${desc.newId} [${desc.data.label}]`);
 }
 
 /*
@@ -204,7 +208,7 @@ async function createLibraryClass(desc, importTargetFolder, fulfilledDependencie
         ? desc.data.fields.field.find(f => f.name === 'body').value
         : desc.data.fields.field.value;
     resp = await cms.update(desc.newId, {"body": bodyContent});
-    console.log(`createLibraryClass ${desc.id} --> ${desc.newId} ${desc.data.label}`);
+    console.log(`PATCH: Created library class ${desc.id} --> ${desc.newId} [${desc.data.label}]`);
 }
 
 //#endregion
@@ -212,14 +216,14 @@ async function createLibraryClass(desc, importTargetFolder, fulfilledDependencie
 /*
 * Top-level function that applies the given patch to the CMS and the given site root
 *
+* @param {any} cms
 * @param {string} source     - path to the XML patch file to read and apply
-* @param {int} importTargetFolderId - folder ID of the site root
-* @param {int} importWorkflowId
-* @parma {any} cms
+* @param {int} importTargetFolderId - folder id or path of the site root
 */
-async function patch(source, importTargetFolderId, cms) {
+async function patch(cms, source, importTargetFolderId) {
     let dependencies = new Map();
     let importTargetFolder = {};
+    if (source === "__latest__") source = LATEST_PATCH;
 
     function addFolders(nodes) {
         for (let n of nodes) {
@@ -303,98 +307,136 @@ async function patch(source, importTargetFolderId, cms) {
             // items in the import with no data -- will need to be mapped to something
             //console.log(item[1]);
             if (!item[1].data && !item[1].newId) {
-                console.log(`Mapping ${item[0]} to the import target folder -- no import data provided`);
-                item[1].newId = importTargetFolderId;
+                //console.log(`Mapping ${item[0]} to the import target folder -- no import data provided`);
+                item[1].newId = importTargetFolder.id;
             }
             else {
-                if (item[1].newId == null) await create(item[1], 0);
+                if (item[1].newId == null) await create(item[1]);
             }
         }
     }
 
+    async function process(data) {
+        const parser = new xml2js.Parser({ explicitArray: false, trim: true, emptyTag: null});
+        let result = await parser.parseStringPromise(data);
+
+        dependencies.set('1792', new Descriptor('1792', [], null, '1792')); // special case: DeveloperCS template. Asset ID is usually identical in all CMS instances
+        addFolders(result.assets.folder);
+        addAssets(result.assets.asset.filter(a => a.intendedType === 'LibraryClass'));
+        addAssets(result.assets.asset.filter(a => a.intendedType === 'Template'));
+        await createAll(dependencies);
+        let library = result.assets.folder.find(f => f.label === 'Library');
+        if (library && dependencies.get(library.id)) {
+            let newLibrary = dependencies.get(library.id);
+            console.log(`PATCH: Recompiling library ${newLibrary.newId}`);
+            await cms.recompileLibrary(newLibrary.newId);
+        }
+        else {
+            console.warn('PATCH: WARNING: Could not find Library folder to recompile.');
+        }                    
+
+        addAssets(result.assets.asset.filter(a => a.intendedType === 'ContentAsset' || a.intendedType === 'Model, ContentAsset'));
+        await createAll(dependencies);
+    }
+
+    await cms.login();
     let resp = await cms.get(importTargetFolderId);
-    if(resp.isSuccessful) {
+    if (resp.isSuccessful) {
         importTargetFolder = resp.asset;
-        fs.readFile(
-            source,
-            async (err, data) => {
-                if (data) {
-                    const parser = new xml2js.Parser({ explicitArray: false, trim: true, emptyTag: null})
-                    let result = await parser.parseStringPromise(data)
-
-                    dependencies.set('1792', new Descriptor('1792', [], null, '1792')); // special case: DeveloperCS template. Asset ID is usually identical in all CMS instances
-                    addFolders(result.assets.folder);
-                    addAssets(result.assets.asset.filter(a => a.intendedType === 'LibraryClass'));
-                    addAssets(result.assets.asset.filter(a => a.intendedType === 'Template'));
-                    await createAll(dependencies);
-                    let library = result.assets.folder.find(f => f.label === 'Library');
-                    if(library && dependencies.get(library.id)) {
-                        let newLibrary = dependencies.get(library.id);
-                        console.log(`Recompiling Library ${newLibrary.newId}`)
-                        await cms.recompileLibrary(newLibrary.newId);
-                    }
-                    else {
-                        console.warn('WARNING: Could not find Library folder to recompile.');
-                    }                    
-
-                    addAssets(result.assets.asset.filter(a => a.intendedType === 'ContentAsset' || a.intendedType === 'Model, Content Asset'));
-                    await createAll(dependencies);
+        //console.log(`Importing to ${importTargetFolder.id} - ${importTargetFolder.fullPath}`);
+        if (source.indexOf("http") === 0) {
+            (source.indexOf("https") === 0 ? https : http).get(source, (response) => {
+                if (response.statusCode !== 200) {
+                    console.error(`PATCH: ERROR: Could not download the source file [${source}]`);    
+                    return;
                 }
-        });
+                let data = [];
+                response.on('data', (chunk) => {
+                    data.push(chunk);
+                });
+                
+                response.on('end', async () => {
+                    await process(data.join(""));
+                });
+            }).on('error', (_ex) => {
+                console.error(`PATCH: ERROR: Could not download the source file [${source}]`);    
+                error = true;
+            });
+        } else {
+            let filepath = source;
+            if (!fs.existsSync(filepath)) filepath = path.resolve(__dirname, source);
+            if (!fs.existsSync(filepath)) filepath = path.resolve(process.env.INIT_CWD || path.resolve('.'), source);
+            if (!fs.existsSync(filepath)) {
+                console.error(`PATCH: ERROR: Could not read the source file [${source}]`);
+            } else {
+                fs.readFile(
+                    filepath,
+                    async (_err, data) => {
+                        if (data) {
+                            await process(data);
+                        } else {
+                            console.error(_err);
+                        }
+                    }
+                );
+            }
+        }
     }
     else {
-        console.error(`ERROR: could not read the target import folder id ${importTargetFolderId}`);
+        console.error(`PATCH: ERROR: Could not read the target import folder ${importTargetFolderId}`);
     }
 }
 
 
 /*
-
-Usage: yarn crownpeak init <root-folder> <siteroot-name>
-
-root-folder           asset id of the folder to create the site root in; default to 0 (repository root)
-siteroot-name         string label for the created site root; defaults to 'react-sdk-site'
-
-@param {cms}
+* Top-level function that creates a new site root and project, using the Component Library
+*
+* @param {any} cms
+* @param {string} rootFolder     - asset id or path of the folder to create the site root in;
+* @param {string} siterootName   - label for the created site root; defaults to 'SDK Site Root'
+* @param {string} version        - the version of the component library to install; defaults to '2.2'
+*
 */
-async function initialize_site(cms, args) {
-    const default_library_name = 'Library';
-    const default_component_library_version = '2.2';
-    const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-    let logging = false;
-    let rootFolder = 0; // default to the root folder
-    let siterootName = 'react-sdk-site';
-
-    if (args && args.length == 2) {
-        const lookup = await cms.get(args[0]);
-        if (lookup.asset.type != 4) {
-            console.error(`Cannot create site root: asset ${args[0]} is not a folder.`);
-            return -1;
-        } else {
-            rootFolder = lookup.asset.id;
-        }
-        siterootName = args[1];
-    } else {
-        console.log(`Cannot initialize: required parameter missing`);
+async function initialize_site(cms, rootFolder, siterootName, version) {
+    
+    await cms.login();
+    const lookup = await cms.get(rootFolder);
+    if (lookup.asset.type != 4) {
+        console.error(`INIT: ERROR: Cannot create site root: asset ${args[0]} is not a folder.`);
         return -1;
+    } else {
+        rootFolder = lookup.asset.id;
     }
 
-    let resp = await cms.createSiteRoot(siterootName, rootFolder);
-    if(resp.isSuccessful) {       
-        const siteroot = resp.asset;          
-        console.log(`Created new site root ${siteroot.path} (id: ${siteroot.id})`);
-        console.log(`Installing Component Library`);
-        await snooze(30 * 1000);
-        await patch('./../dxm/dxm-cl-patch-for-react-sdk-2020JUN16.xml', siteroot.id, cms);
-        console.log(`Completed patching siteroot to support the SDK`);
-    }
-    else {
+    let resp = await cms.createSiteRoot(siterootName, rootFolder, version);
+    if (resp.isSuccessful) {
+        const siteroot = resp.asset;
+        console.log(`INIT: Created new site root ${siteroot.id} [${siteroot.fullPath}]`);
+        const projectPath = siteroot.fullPath + "Component Project/";
+        let counter = 20;
+        while (counter-- > 0) {
+            resp = await cms.get(projectPath);
+            if (resp && resp.isSuccessful) {
+                const project = resp.asset;
+                console.log(`INIT: Created new project ${project.id} [${project.fullPath}]`);
+                break;
+            } else {
+                await snooze(500);
+            }
+        }
+        console.log("INIT: You should set these values in your environment variables or .env file before using 'patch' or 'scaffold'.");
+
+        // console.log(`Installing Component Library`);
+        // await snooze(30 * 1000);
+        // await patch('./../dxm/dxm-cl-patch-for-react-sdk-2020JUN16.xml', siteroot.id, cms);
+        // console.log(`Completed patching siteroot to support the SDK`);
+    } else {
+        console.log("INIT: ERROR: Cannot create site root.");
         console.dir(resp);
     }
 }
 
 module.exports = {
-    initialize_site: initialize_site,
+    initialize: initialize_site,
     patch: patch
 }

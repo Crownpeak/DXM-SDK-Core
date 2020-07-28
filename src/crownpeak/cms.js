@@ -225,12 +225,17 @@ const createOrUpdateModel = async (shortName) => {
  * Creates a new site root asset with the given name in the given folder. The site root will
  * be set up with a Component Library configuration.
  * 
- * @param {string} siteRootName 
- * @param {int} rootFolder 
+ * @param {string} siteRootName               the name of the new Site Root
+ * @param {int} rootFolder                    the root folder in which to initialize the Site Root
+ * @param {string=} componentLibraryVersion   the version of Component Library to install
  */
-const createSiteRoot = async (siteRootName, rootFolder) => {
-    const req = new crownpeak.Asset.CreateSiteRootRequest(siteRootName, rootFolder, true, false, "2.2");
-    return crownpeak.Asset.createSiteRoot(req);
+const createSiteRoot = async (siteRootName, rootFolder, componentLibraryVersion = "2.2") => {
+    const req = new crownpeak.Asset.CreateSiteRootRequest(siteRootName, rootFolder, true, false, componentLibraryVersion);
+    let result = await crownpeak.Asset.createSiteRoot(req);
+    if (!result.asset.fullPath) {
+        result.asset.fullPath = await getPath(result.asset.id);
+    }
+    return result;
 }
 //#endregion
 
@@ -502,7 +507,7 @@ const progressBar = (message, count, total, stepmessage = "", ttyonly = true, fi
         }
         return;
     }
-    const maxWidth = process.stdout?.columns || 999;
+    const maxWidth = process && process.stdout && process.stdout.columns ? process.stdout.columns : 999;
     let output = `${message} [${"#".repeat(count)}${"-".repeat(total-count)}] [${count}/${total}] ${stepmessage}`;
     let outputSize = output.length;
     if (outputSize > maxWidth) {

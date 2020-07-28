@@ -12,12 +12,14 @@ the Single Page App developer in developing client-side applications that levera
 | 0.1.2         | 2020JUN03     | Override for CmsField value        |
 | 0.1.3         | 2020JUN03     | Add HREF to CmsFieldTypes          |
 | 2.0.0         | 2020JUN30     | Migrated to TypeScript.            |
+| next          | 2020JUL28     | New 'init', 'patch' and 'scaffold' options, improved output, lots of bug fixes. |
 
 
 ## Credit
 Thanks to:
 * <a href="https://github.com/richard-lund" target="_blank">Richard Lund</a> for the refactoring;
 * <a href="https://github.com/ptylr" target="_blank">Paul Taylor</a> for a few edits ;)
+* <a href="https://github.com/marcusedwards-cp" target="_blank">Marcus Edwards</a> for the 'init' and 'parse' modules
  
 ## License
 MIT License
