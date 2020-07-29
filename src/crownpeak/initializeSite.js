@@ -7,7 +7,7 @@ const
     path = require('path'),
     xml2js = require('xml2js'),
     cms = require("./cms"),
-    LATEST_PATCH = "../../dxm/dxm-cl-patch-for-react-sdk-2020JUL28.xml";
+    LATEST_PATCH = "../../dxm/dxm-cl-patch-for-sdk-latest.xml";
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 require('dotenv').config();
@@ -316,7 +316,7 @@ async function patch(cms, source, importTargetFolderId) {
         }
     }
 
-    async function process(data) {
+    async function processPatch(data) {
         const parser = new xml2js.Parser({ explicitArray: false, trim: true, emptyTag: null});
         let result = await parser.parseStringPromise(data);
 
@@ -356,7 +356,7 @@ async function patch(cms, source, importTargetFolderId) {
                 });
                 
                 response.on('end', async () => {
-                    await process(data.join(""));
+                    await processPatch(data.join(""));
                 });
             }).on('error', (_ex) => {
                 console.error(`PATCH: ERROR: Could not download the source file [${source}]`);    
@@ -373,7 +373,7 @@ async function patch(cms, source, importTargetFolderId) {
                     filepath,
                     async (_err, data) => {
                         if (data) {
-                            await process(data);
+                            await processPatch(data);
                         } else {
                             console.error(_err);
                         }
