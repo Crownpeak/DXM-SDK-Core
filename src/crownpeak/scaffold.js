@@ -5,7 +5,7 @@ const processCommand = (cms, options, components, pages, wrappers, uploads) => {
     const noComponents = options.components === false || options["nocomponents"] === true;
     const noPages = options.pages === false || options["nopages"] === true;
     const noWrappers = options.wrappers === false || options["nowrappers"] === true;
-    const noUploads = options.uploads === false || options["nocomponents"] === true;
+    const noUploads = options.uploads === false || options["nouploads"] === true;
 
     if (options["dry-run"] === true) {
         const verbose = options["verbose"] === true;
