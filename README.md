@@ -14,6 +14,7 @@ the Single Page App developer in developing client-side applications that levera
 | 2.0.0         | 2020JUN30     | Migrated to TypeScript.            |
 | 2.1.0         | 2020JUL28     | New 'init', 'patch' and 'scaffold' options, improved output, lots of bug fixes. |
 | 2.1.1         | 2020JUL29     | Fix for missing XML patch file.    |
+| 2.2.0         | 2020SEP03     | Add support for indexed fields.    |
 
 
 ## Credit
