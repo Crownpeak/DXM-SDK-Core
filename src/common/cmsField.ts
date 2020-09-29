@@ -14,9 +14,24 @@ export default class CmsField extends String {
     this.cmsFieldType = cmsFieldType;
     this.value = value;
     this.cmsIndexedField = cmsIndexedField;
+
+    const handler = {
+      get: function(target: any, prop: string) : any {
+        if (typeof prop !== "string") return target[prop];
+        if (prop in target) return target[prop];
+        if (prop === "$$typeof") return undefined; // React uses this to determine if this is a React component or not
+        if (prop === "_isVue") return undefined; // Vue.js uses this to determine if this is a Vue.js component or not
+        return target.data()[prop];
+      }
+    };
+    if (typeof Proxy !== "undefined") return new Proxy(this, handler);
   }
 
   [Symbol.toPrimitive](_hint: string) {
+    return this.data();
+  }
+
+  data() {
     if (typeof(this.value) !== "undefined" 
       && this.value !== null 
       && !(typeof(this.value) === "number" && isNaN(this.value)))
