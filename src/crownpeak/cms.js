@@ -220,6 +220,35 @@ const createOrUpdateModel = async (shortName) => {
     return model.asset;
 };
 
+const ensurePath = async(siteRoot, path) => {
+    // Paths come in with no leading / and one trailing /
+    const pathSegments = path.substr(0, path.length - 1).split("/");
+    let workingPath = [siteRoot];
+    let lastExists = true;
+    let lastFolder = await get(siteRoot);
+    for (let i = 0, len = pathSegments.length; i < len; i++) {
+        let mustCreate = false;
+        workingPath.push(pathSegments[i]);
+        if (!lastExists) {
+            // If the parent didn't exist last time, this folder won't exist either
+            mustCreate = true;
+        } else {
+            let folder = await getByPath(workingPath.join("/"));
+            if (!folder || !folder.asset) {
+                lastExists = false;
+                mustCreate = true;
+            } else {
+                lastFolder = folder;
+            }
+        }
+        if (mustCreate) {
+            // We need to create a new folder here
+            lastFolder = await createFolder(pathSegments[i], lastFolder.asset.id);
+        }
+    }
+    return lastFolder;
+};
+
 //#region Initialize site root
 /**
  * Creates a new site root asset with the given name in the given folder. The site root will
@@ -426,7 +455,7 @@ const processUploads = async (uploads) => {
     for (let i = 0, len = uploads.length; i < len; i++) {
         let upload = uploads[i];
         if (!upload.content && !fs.existsSync(upload.source)) continue;
-        const folder = await getByPath(`${siteRootPath}${upload.destination}`);
+        const folder = await ensurePath(siteRootPath, upload.destination); // await getByPath(`${siteRootPath}${upload.destination}`);
         if (!folder || !folder.asset) {
             console.error(`Unable to find folder [${siteRootPath}${upload.destination}] for upload`);
         } else {
