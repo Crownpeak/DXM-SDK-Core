@@ -351,7 +351,7 @@ const setTemplate = async (assetId, templateId) => {
 
 //#endregion
 
-const createOrUpdateTemplate = async (shortName, markup, shortWrapperName) => {
+const createOrUpdateTemplate = async (shortName, markup, shortWrapperName, useTmf = false) => {
     const name = expandName(shortName, ' ') + " Template";
     const wrapperName = expandName(shortWrapperName, ' ') + " Wrapper";
     const folder = await getTemplateDefinitionFolder();
@@ -365,6 +365,7 @@ const createOrUpdateTemplate = async (shortName, markup, shortWrapperName) => {
         template_name: name,
         wrapper_type: "template_builder"
     };
+    if (useTmf) content.enable_tmf = "yes";
     if (wrapperName) {
         const wrapperAsset = await getByPath((await getWrapperDefinitionFolder()).fullPath + wrapperName);
         if (wrapperAsset && wrapperAsset.asset) {
@@ -382,7 +383,7 @@ const processTemplates = async (templates, wrapperName) => {
     for (let i in templates) {
         const template = templates[i];
         progressBar(message, completed, total, `Saving template [${template.name}]`);
-        let result = await createOrUpdateTemplate(template.name, template.content, template.wrapper || wrapperName);
+        let result = await createOrUpdateTemplate(template.name, template.content, template.wrapper || wrapperName, template.useTmf === true);
         template.assetId = result.asset.id;
         template.assetPath = await getPath(template.assetId);
         progressBar(message, ++completed, total, `Saved template [${template.name}] as [${template.assetPath}] (${template.assetId})`, false);
