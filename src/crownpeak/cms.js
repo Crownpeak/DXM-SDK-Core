@@ -376,7 +376,11 @@ const createOrUpdateTemplate = async (shortName, markup, shortWrapperName, useTm
 };
 
 const processTemplates = async (templates, wrapperName) => {
-    const total = templates.length * 3;
+    const total = templates.reduce((acc, cur) => {
+        if (cur.suppressModel) return acc + 1;
+        if (cur.suppressFolder) return acc + 2;
+        return acc + 3;
+    }, 0);
     let completed = 0;
     const message = "Saving templates and models";
 
@@ -388,18 +392,22 @@ const processTemplates = async (templates, wrapperName) => {
         template.assetPath = await getPath(template.assetId);
         progressBar(message, ++completed, total, `Saved template [${template.name}] as [${template.assetPath}] (${template.assetId})`, false);
         //console.log(`Saved template [${template.name}] as [${template.assetPath}] (${template.assetId})`);
-        progressBar(message, completed, total, `Saving model [${template.name}]`, true);
-        result = await createOrUpdateModel(template.name);
-        if (!result.fullPath) {
-            result.fullPath = await getPath(result.id);
+        if (!template.suppressModel) {
+            progressBar(message, completed, total, `Saving model [${template.name}]`, true);
+            result = await createOrUpdateModel(template.name);
+            if (!result.fullPath) {
+                result.fullPath = await getPath(result.id);
+            }
+            progressBar(message, ++completed, total, `Saved model [${template.name}] as [${result.fullPath}] (${result.id})`, false);
+            //console.log(`Saved model [${template.name}] as [${result.fullPath}] (${result.id})`);
         }
-        progressBar(message, ++completed, total, `Saved model [${template.name}] as [${result.fullPath}] (${result.id})`, false);
-        //console.log(`Saved model [${template.name}] as [${result.fullPath}] (${result.id})`);
-        progressBar(message, completed, total, `Saving content folder [${template.name}]`, true);
-        result = await createOrUpdateContentFolder(template.name);
-        let assetPath = await getPath(result.id);
-        progressBar(message, ++completed, total, `Saved content folder [${result.label}] as [${assetPath}] (${result.id})`, false);
-        //console.log(`Saved content folder [${result.label}] as [${assetPath}] (${result.id})`);
+        if (!template.suppressFolder && !template.suppressModel) {
+            progressBar(message, completed, total, `Saving content folder [${template.name}]`, true);
+            result = await createOrUpdateContentFolder(template.name);
+            let assetPath = await getPath(result.id);
+            progressBar(message, ++completed, total, `Saved content folder [${result.label}] as [${assetPath}] (${result.id})`, false);
+            //console.log(`Saved content folder [${result.label}] as [${assetPath}] (${result.id})`);
+        }
     }
     if (total > 0) progressBar(message, completed, total, `Done`, true, true);
     return templates;
