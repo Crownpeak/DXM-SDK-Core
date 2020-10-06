@@ -2558,7 +2558,9 @@ namespace Component_Library.Component_Project.Components
 			{
 				sbInputContent.Append(tab + "Input.NextTabbedPanel();").AppendLine();
 				sbInputContent.AppendLine().Append(tab + "try { ServicesTMF.Input.LoadInput(asset, context); } catch (Exception ex){}").AppendLine().AppendLine();
+				sbOutputContent.Append(openTag).AppendLine();
 				sbOutputContent.Append(tab + "try { ServicesTMF.Output.LoadOutput(asset, context); } catch (Exception ex){}").AppendLine();
+				sbOutputContent.Append(closeTag).AppendLine();
 				sbOutputChangesContent.Append(tab + "try { ServicesTMF.Output.LoadMasterAssetChanges(asset); } catch (Exception ex){}").AppendLine();
 				sbOutputTranslateXmlContent.Append(tab + "try { " + context.InputForm["output_translate_xml_body"] + " } catch (Exception ex){}").AppendLine();
 				sbPostSaveContent.Append(tab + "try { ServicesTMF.PostSave.LoadPostSave(asset, context); } catch (Exception ex){}").AppendLine();
