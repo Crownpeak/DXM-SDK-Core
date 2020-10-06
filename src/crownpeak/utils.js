@@ -63,7 +63,7 @@ const getRecursive = function(dir, extn) {
     return results;
 }
 
-const replaceAssets = (file, content, cssParser) => {
+const replaceAssets = (file, content, cssParser, isComponent = false) => {
     let result = content;
     let uploads = [];
 
@@ -76,7 +76,9 @@ const replaceAssets = (file, content, cssParser) => {
                     //console.log(`Found candidate ${url}`);
                     const { path: filepath, folder: dir, filename } = getPaths(file, url);
                     if (fs.existsSync(filepath)) {
-                        let replacement = `"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/${dir}${filename}\").GetLink() %>"`;
+                        let replacement = isComponent
+                            ? `"/cpt_internal/${dir}${filename}"`
+                            : `"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/${dir}${filename}\").GetLink() %>"`;
                         //console.log(`Replacement is ${replacement}`);
                         result = result.replace(matches[2], replacement);
                         if (matches[1] === "link" && fs.lstatSync(filepath).isFile()) {

@@ -1,5 +1,6 @@
 const CrownpeakApi = require("crownpeak-dxm-accessapi-helper");
 const fs = require("fs");
+const reComponentLinks = /"(?:\/[^\/"]+)?\/cpt_internal((\/[^\/"]+)+)"/g;
 
 const crownpeak = new CrownpeakApi();
 
@@ -152,6 +153,27 @@ const createOrUpdateComponent = async (className, markup, deferCompilation = fal
     return createOrUpdateFile(name, folder.id, model.id, content);
 };
 
+const replaceLinksInComponentMarkup = async (markup) => {
+    const matches = [...markup.matchAll(reComponentLinks)];
+    if (!matches || matches.length === 0) return markup;
+    const siteRootPath = await getSiteRootPath();
+    for (let i = 0, len = matches.length; i < len; i++) {
+        const match = matches[i];
+        if (match.length > 1) {
+            path = match[1].substr(1);
+            if (!parseInt(path)) {
+                const resource = await getByPath(`${siteRootPath}${path}`);
+                if (resource && resource.asset) {
+                    markup = markup.replace(match[0], `\"/cpt_internal/${resource.asset.id}\"`);
+                } else {
+                    markup = markup.replace(match[0], `\"/${path}\"`);
+                }
+            }
+        }
+    }
+    return markup;
+};
+
 const processComponents = async (components) => {
     const total = components.length;
     let completed = 0;
@@ -161,6 +183,7 @@ const processComponents = async (components) => {
         const last = parseInt(i) === components.length - 1;
         const component = components[i];
         progressBar(message, completed, total, `Saving component [${component.name}]`);
+        component.content = await replaceLinksInComponentMarkup(component.content);
         const result = await createOrUpdateComponent(component.name, component.content, !last);
         component.assetId = result.asset.id;
         component.assetPath = await getPath(component.assetId);
