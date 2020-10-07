@@ -4,7 +4,7 @@ const parse = (args) => {
         boolean: ['nocomponents', 'nopages', 'nowrappers', 'nouploads',
                 'ignorecirculardependencies', 'verbose',
                 'dry-run', 'verify', 'ignore-circular-dependencies'],
-        string: ['name', 'version', 'source'],
+        string: ['name', 'version', 'source', 'only'],
         alias: {
             h: "help"
         },
@@ -14,7 +14,9 @@ const parse = (args) => {
             version: "2.2"
         }
     };
-    return parseArgs(args, opts);
+    let results = parseArgs(args, opts);
+    if (typeof(results.only) === "string") results.only = [results.only];
+    return results;
 };
 
 const validate = (config) => {
@@ -101,6 +103,7 @@ const showHelp = (verb) => {
         process.stdout.write("--no-pages                     - Instruct the tool to not create/update templates, models or pages within the DXM platform.\n");
         process.stdout.write("--no-wrappers                  - Instruct the tool to not create/update wrappers within the DXM platform.\n");
         process.stdout.write("--no-uploads                   - Instruct the tool to not create/update uploads within the DXM platform.\n");
+        process.stdout.write("--only                         - Instruct the tool to only process item(s) with the specified name. Can be used more than once.\n");
         process.stdout.write("\n");
     }
     process.stdout.write("A number of environment variables are expected when running this tool. These can be set directly or provided via a .env file.\n\n");

@@ -48,11 +48,13 @@ const reorderComponents = (components, options) => {
 
     if (options["ignorecirculardependencies"] === true
         || options["ignore-circular-dependencies"] === true) {
-        console.warn(`SCAFFOLD: Warning: circular dependencies found and ignored.`);
+        if (options["do-not-warn-about-circular-dependencies"] !== true) {
+            console.warn(`SCAFFOLD: Warning: circular/missing dependencies found and ignored.`);
+        }
         return result.concat(workingSet);
     }
 
-    console.error(`SCAFFOLD: Error: circular dependencies found. Please resolve these before importing, or set the --ignore-circular-dependencies argument.`);
+    console.error(`SCAFFOLD: Error: circular/missing dependencies found. Please resolve these before importing, or set the --ignore-circular-dependencies argument.`);
     process.exit(1);
 };
 
