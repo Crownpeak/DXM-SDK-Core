@@ -3727,7 +3727,8 @@ namespace Component_Library.Component_Project.Components
 
 			var createJsonComponent = asset.Raw["json_component"] == "yes";
 
-			var isSingleList = componentPanels.Count == 1 &amp;&amp; componentPanels[0]["component_category"] != "component";
+			// Changed 2020-10-08 issue #57, specify field names in all JSON output
+			var isSingleList = false; // componentPanels.Count == 1 &amp;&amp; componentPanels[0]["component_category"] != "component";
 			if (!isSingleList)
 			{
 				jsonFunctionCode.AppendFormat(moarTabs(3) + "sbJson.Append(\"{{\");{0}", newLineChar);
