@@ -140,9 +140,14 @@ const uploadFile = async (name, folderId, modelId, filePath, workflowId) => {
 };
 
 /* Start: Convenience Methods */
-const createOrUpdateComponent = async (className, markup, deferCompilation = false) => {
+const createOrUpdateComponent = async (className, markup, subfolder, deferCompilation = false) => {
     const name = expandName(className, ' ');
-    const folder = await getComponentDefinitionFolder();
+    let folder = await getComponentDefinitionFolder();
+    if (subfolder && typeof(subfolder) == "string") {
+        subfolder = subfolder.replace(/^[/]+/, "").replace(/[/]+$/, "") + "/";
+        const componentDefinitionsFolder = await getComponentDefinitionFolder();
+        folder = (await ensurePath(componentDefinitionsFolder.fullPath, subfolder)).asset;
+    }
     const model = await getComponentDefinitionModel();
     const content = {
         class_name: className,
@@ -184,7 +189,7 @@ const processComponents = async (components) => {
         const component = components[i];
         progressBar(message, completed, total, `Saving component [${component.name}]`);
         component.content = await replaceLinksInComponentMarkup(component.content);
-        const result = await createOrUpdateComponent(component.name, component.content, !last);
+        const result = await createOrUpdateComponent(component.name, component.content, component.folder, !last);
         component.assetId = result.asset.id;
         component.assetPath = await getPath(component.assetId);
         progressBar(message, ++completed, total, `Saved component [${component.name}] as [${component.assetPath}] (${component.assetId})`, false);
