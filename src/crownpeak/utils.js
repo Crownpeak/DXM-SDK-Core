@@ -78,7 +78,7 @@ const replaceAssets = (file, content, cssParser, isComponent = false) => {
                     if (fs.existsSync(filepath)) {
                         let replacement = isComponent
                             ? `"/cpt_internal/${dir}${filename}"`
-                            : `"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/${dir}${filename}\").GetLink() %>"`;
+                            : `"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/${dir}${filename}\").GetLink(LinkType.Include) %>"`;
                         //console.log(`Replacement is ${replacement}`);
                         result = result.replace(matches[2], replacement);
                         if (matches[1] === "link" && fs.lstatSync(filepath).isFile()) {
