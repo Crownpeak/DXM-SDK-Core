@@ -4045,10 +4045,14 @@ namespace Component_Library.Component_Project.Components
 					outputFunctionCode.Append(newLineChar);
 
 					//JSON CODE
+					
+					// Strip any HTML from the list markup
+					var jsonPanelMarkup = pe["component_list_content"].Replace("\r", "").Replace("\n", "").Replace("\"", "\"\"");
+					jsonPanelMarkup = string.Join(",", new Regex("\\{[^}]+\\}").Matches(jsonPanelMarkup).OfType&lt;Match&gt;().Select(m =&gt; m.Value));
 					if (isSingleList)
-						jsonFunctionCode.AppendFormat(moarTabs(3) + "sbJson.AppendFormat(\"[{{0}}]\", PanelJson(asset, context, name + {1}\"_panel\", @\"{2}\", \"{3}\", \"{5}\", {4}_fields, index));{6}", listLabel, (listCount &gt; 0 ? "\"_" + listLabel + "\" + " : ""), pe["component_list_content"].Replace("\r", "").Replace("\n", "").Replace("\"", "\"\""), listLabel, listLabel, subItemLabel, newLineChar);
+						jsonFunctionCode.AppendFormat(moarTabs(3) + "sbJson.AppendFormat(\"[{{0}}]\", PanelJson(asset, context, name + {1}\"_panel\", @\"{2}\", \"{3}\", \"{5}\", {4}_fields, index));{6}", listLabel, (listCount &gt; 0 ? "\"_" + listLabel + "\" + " : ""), jsonPanelMarkup, listLabel, listLabel, subItemLabel, newLineChar);
 					else
-						jsonFunctionCode.AppendFormat(moarTabs(3) + "sbJson.AppendFormat(\"\\\"{{0}}\\\":[{{1}}]\", JsonHelper.StringToJson(\"{3}\"), PanelJson(asset, context, name + {1}\"_panel\", @\"{2}\", \"{3}\", \"{5}\", {4}_fields, index));{6}", listLabel, (listCount &gt; 0 ? "\"_" + listLabel + "\" + " : ""), pe["component_list_content"].Replace("\r", "").Replace("\n", "").Replace("\"", "\"\""), listLabel, listLabel, subItemLabel, newLineChar);
+						jsonFunctionCode.AppendFormat(moarTabs(3) + "sbJson.AppendFormat(\"\\\"{{0}}\\\":[{{1}}]\", JsonHelper.StringToJson(\"{3}\"), PanelJson(asset, context, name + {1}\"_panel\", @\"{2}\", \"{3}\", \"{5}\", {4}_fields, index));{6}", listLabel, (listCount &gt; 0 ? "\"_" + listLabel + "\" + " : ""), jsonPanelMarkup, listLabel, listLabel, subItemLabel, newLineChar);
 
 					listCount++;
 
