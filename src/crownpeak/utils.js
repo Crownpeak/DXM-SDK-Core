@@ -63,6 +63,10 @@ const getRecursive = function(dir, extn) {
     return results;
 }
 
+const isCoreComponent = (type) => {
+    return ["code","color","date","document","href","image","src","text","video","wysiwyg"].indexOf((type || "").toLowerCase()) >= 0;
+};
+
 const replaceAssets = (file, content, cssParser, isComponent = false) => {
     let result = content;
     let uploads = [];
@@ -110,5 +114,6 @@ module.exports = {
     colorizeErrors: colouriseErrors,
     getPaths: getPaths,
     getRecursive: getRecursive,
+    isCoreComponent: isCoreComponent,
     replaceAssets: replaceAssets
 };
