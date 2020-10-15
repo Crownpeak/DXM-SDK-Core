@@ -140,7 +140,7 @@ const uploadFile = async (name, folderId, modelId, filePath, workflowId) => {
 };
 
 /* Start: Convenience Methods */
-const createOrUpdateComponent = async (className, markup, subfolder, deferCompilation = false) => {
+const createOrUpdateComponent = async (className, markup, subfolder, zones, deferCompilation = false) => {
     const name = expandName(className, ' ');
     let folder = await getComponentDefinitionFolder();
     if (subfolder && typeof(subfolder) == "string") {
@@ -154,6 +154,7 @@ const createOrUpdateComponent = async (className, markup, subfolder, deferCompil
         json_component: "yes",
         markup: markup
     };
+    if (zones && zones.length > 0) content.component_zones = zones.join(",");
     if (deferCompilation) content.defer_compilation = "yes";
     return createOrUpdateFile(name, folder.id, model.id, content);
 };
@@ -189,7 +190,7 @@ const processComponents = async (components) => {
         const component = components[i];
         progressBar(message, completed, total, `Saving component [${component.name}]`);
         component.content = await replaceLinksInComponentMarkup(component.content);
-        const result = await createOrUpdateComponent(component.name, component.content, component.folder, !last);
+        const result = await createOrUpdateComponent(component.name, component.content, component.folder, component.zones, !last);
         component.assetId = result.asset.id;
         component.assetPath = await getPath(component.assetId);
         progressBar(message, ++completed, total, `Saved component [${component.name}] as [${component.assetPath}] (${component.assetId})`, false);
