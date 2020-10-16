@@ -154,7 +154,8 @@ const createOrUpdateComponent = async (className, markup, subfolder, zones, defe
         json_component: "yes",
         markup: markup
     };
-    if (zones && zones.length > 0) content.component_zones = zones.join(",");
+    if (!zones || zones.length === 0) zones = ["All"];
+    content.component_zones = zones.join(",");
     if (deferCompilation) content.defer_compilation = "yes";
     return createOrUpdateFile(name, folder.id, model.id, content);
 };

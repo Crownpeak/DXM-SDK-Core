@@ -2449,7 +2449,7 @@ namespace Component_Library.Component_Project.Components
 				{
 					if (!firstZone) sbOutputJsonContent.AppendLine(tab + "sbJson.Append(\",\");");
 					sbOutputJsonContent.AppendLine(tab + "sbJson.Append(JsonHelper.DragAndDropZoneToJson(asset, context, \"" + match.Groups[3] + "\"));");
-					markup = markup.Replace(match.Groups[0].Value, "&lt;% Out.ShowDragDrop(\"" + match.Groups[3] + "\"); %&gt;");
+					markup = markup.Replace(match.Groups[0].Value, "&lt;% Out.ShowDragDropIncludeList(\"" + match.Groups[3] + "\", new [] { \"All\", \"" + match.Groups[3] + "\" }); %&gt;");
 					firstZone = false;
 				}
 				sbOutputJsonContent.AppendLine(tab + "sbJson.Append(\"}\");");
