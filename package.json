@@ -13,7 +13,7 @@
     "lib/**/*", "dxm/dxm-cl-patch-for-sdk-latest.xml"
   ],
   "dependencies": {
-    "crownpeak-dxm-accessapi-helper": "^1.0.4",
+    "crownpeak-dxm-accessapi-helper": "^1.0.5",
     "minimist": "^1.2.5",
     "xml2js": "^0.4.23"
   },

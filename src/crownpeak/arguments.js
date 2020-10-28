@@ -59,16 +59,16 @@ const getProcessName = () => {
 
 const showUsage = () => {
     const processName = getProcessName();
-    process.stdout.write(processName + " crownpeak [init|patch|scaffold] [arguments]\n");
+    process.stdout.write(processName + " crownpeak [init|patch|scaffold|upgrade] [arguments]\n");
     process.stdout.write("Use '" + processName + " crownpeak --help' for full instructions.\n");
 };
 
 const showHelp = (verb) => {
-    const isBadVerb = (verb != "init" && verb != "patch" && verb != "scaffold");
+    const isBadVerb = (verb != "init" && verb != "patch" && verb != "scaffold" && verb != "upgrade");
     const processName = getProcessName();
     if (isBadVerb) {
         process.stdout.write(processName + " crownpeak [verb] [arguments]\n\n");
-        process.stdout.write("Three verbs are supported: 'init', 'patch' and 'scaffold'.\n");
+        process.stdout.write("Four verbs are supported: 'init', 'patch', 'scaffold' and 'upgrade'.\n");
         process.stdout.write("\n");
     }
     if (isBadVerb || verb === "init") {
@@ -104,6 +104,11 @@ const showHelp = (verb) => {
         process.stdout.write("--no-wrappers                  - Instruct the tool to not create/update wrappers within the DXM platform.\n");
         process.stdout.write("--no-uploads                   - Instruct the tool to not create/update uploads within the DXM platform.\n");
         process.stdout.write("--only                         - Instruct the tool to only process item(s) with the specified name. Can be used more than once.\n");
+        process.stdout.write("\n");
+    }
+    if (isBadVerb || verb === "upgrade") {
+        process.stdout.write("To upgrade any necessary files to avoid compilation failure as a result of breaking changes.\n\n");
+        process.stdout.write(processName + " crownpeak upgrade\n\n");
         process.stdout.write("\n");
     }
     process.stdout.write("A number of environment variables are expected when running this tool. These can be set directly or provided via a .env file.\n\n");

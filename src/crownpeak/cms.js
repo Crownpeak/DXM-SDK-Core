@@ -109,6 +109,15 @@ const getByPath = async (path, bustCache) => {
     return _assetCache[path];
 };
 
+const getFields = async (id) => {
+    return await crownpeak.Asset.fields(id);
+};
+
+const getList = async (id, page = 0) => {
+    const request = new crownpeak.Asset.PagedRequest(id, 0, page, true, true, crownpeak.Util.OrderType.NotSet, 25, false, "", 0);
+    return await crownpeak.Asset.paged(request);
+};
+
 const getPath = async (id) => {
     return (await get(id)).asset.fullPath;
 };
@@ -744,6 +753,9 @@ module.exports = {
     download: download,
     exists: exists,
     get: get,
+    getFields: getFields,
+    getLibraryFolder: getLibraryFolder,
+    getList: getList,
     getPath: getPath,
     save: createOrUpdateFile,
     update: update,
