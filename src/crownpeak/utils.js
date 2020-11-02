@@ -84,7 +84,7 @@ const replaceAssets = (file, content, cssParser, isComponent = false) => {
                             ? `"/cpt_internal/${dir}${filename}"`
                             : `"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/${dir}${filename}\").GetLink(LinkType.Include) %>"`;
                         //console.log(`Replacement is ${replacement}`);
-                        result = result.replace(matches[2], replacement);
+                        result = replaceAll(result, matches[2], replacement);
                         if (matches[1] === "link" && fs.lstatSync(filepath).isFile()) {
                             // If this is CSS, it needs to be parsed separately
                             const result = cssParser.parse(filepath, fs.readFileSync(filepath, "utf8"), "");
@@ -107,6 +107,17 @@ const replaceAssets = (file, content, cssParser, isComponent = false) => {
 
 const getRoot = function() {
     return process.cwd();
+};
+
+const replaceAll = (source, original, replacement) => {
+    if (!source || !source.replace) return source;
+    let result = source;
+    let index = result.indexOf(original);
+    while (index >= 0) {
+        result = result.substr(0, index) + replacement + result.substr(index + original.length);
+        index = result.indexOf(original, index + replacement.length - original.length);
+    }
+    return result;
 };
 
 module.exports = {
