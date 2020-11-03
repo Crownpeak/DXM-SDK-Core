@@ -22,4 +22,15 @@ export default class CmsDataCache {
     CmsDataCache.cmsStaticDataLocation = staticDataLocation;
     CmsDataCache.cmsDynamicDataLocation = dynamicDataLocation;
   }
+
+  static setComponent(componentName: string, dataSource?: CmsDataSource): void {
+    this.cmsComponentName = componentName;
+    this.dataSource = (dataSource || this).get(this.cmsAssetId)[componentName];
+    if (Array.isArray(this.dataSource)) {
+        let index = this.dataSource.index;
+        if (typeof index === "undefined" || isNaN(index)) index = 0;
+        else index++;
+        this.dataSource.index = index;
+    }
+  }
 }

@@ -21,7 +21,7 @@ export default class CmsField extends String {
         if (prop in target) return target[prop];
         if (prop === "$$typeof") return undefined; // React uses this to determine if this is a React component or not
         if (prop === "_isVue") return undefined; // Vue.js uses this to determine if this is a Vue.js component or not
-        return target.data()[prop];
+        return (target.data() || {})[prop];
       }
     };
     if (typeof Proxy !== "undefined") return new Proxy(this, handler);
