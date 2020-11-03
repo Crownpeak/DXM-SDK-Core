@@ -19,11 +19,13 @@ export default class CmsStaticDataProvider implements ICmsDataProvider {
   async getSingleAsset(assetId: number) {
     const data = await this._getData(assetId + '.json');
     CmsDataCache.set(assetId, data || {});
+    return data;
   }
 
   getSingleAssetSync(assetId: number) {
     const data = this._getDataSync(assetId + '.json');
     CmsDataCache.set(assetId, data || {});
+    return data;
   }
 
   async getCustomData(filename: string) {

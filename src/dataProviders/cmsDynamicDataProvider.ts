@@ -23,6 +23,9 @@ export default class CmsDynamicDataProvider implements ICmsDataProvider {
         ? data.response.docs[0].custom_t_json
         : {}
     );
+    return data && data.response && data.response.docs && data.response.docs.length > 0 
+      ? data.response.docs[0].custom_t_json
+      : {};
   }
 
   getSingleAssetSync(assetId: number) {
@@ -32,6 +35,9 @@ export default class CmsDynamicDataProvider implements ICmsDataProvider {
         ? data.response.docs[0].custom_t_json
         : {}
     );
+    return data && data.response && data.response.docs && data.response.docs.length > 0 
+      ? data.response.docs[0].custom_t_json
+      : {};
   }
 
   async getDynamicQuery(query: string) {
