@@ -4,7 +4,7 @@ const parse = (args) => {
         boolean: ['nocomponents', 'nopages', 'nowrappers', 'nouploads',
                 'ignorecirculardependencies', 'verbose',
                 'dry-run', 'verify', 'ignore-circular-dependencies'],
-        string: ['name', 'version', 'source', 'only'],
+        string: ['name', 'version', 'source', 'only', 'ignore'],
         alias: {
             h: "help"
         },
@@ -16,6 +16,7 @@ const parse = (args) => {
     };
     let results = parseArgs(args, opts);
     if (typeof(results.only) === "string") results.only = [results.only];
+    if (!Array.isArray(results.ignore)) results.ignore = [results.ignore];
     return results;
 };
 
@@ -98,6 +99,7 @@ const showHelp = (verb) => {
         process.stdout.write("--verbose                      - Show verbose output where applicable.\n");
         process.stdout.write("--verify                       - Verify that the Crownpeak DXM environment is configured correctly.\n");
         process.stdout.write("--ignore-circular-dependencies - Instruct the tool to ignore unmet/circular dependency checking before import.\n");
+        process.stdout.write("--ignore                       - Instruct the tool to ignore a specific dependency before import.\n");
         process.stdout.write("                                 Errors may be shown when the tool is run if dependencies do not exist within DXM.\n");
         process.stdout.write("--no-components                - Instruct the tool to not create/update components within the DXM platform.\n");
         process.stdout.write("--no-pages                     - Instruct the tool to not create/update templates, models or pages within the DXM platform.\n");

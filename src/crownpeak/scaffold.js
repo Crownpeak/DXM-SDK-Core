@@ -31,6 +31,13 @@ const reorderComponents = (components, options) => {
     let workingSet = components.filter(c => c.dependencies && c.dependencies.length);
     if (!workingSet.length) return components;
 
+    // Remove dependencies that were specifically ignored
+    if (options.ignore && options.ignore.length) {
+        for (let i = 0, len = components.length; i < len; i++) {
+            components[i].dependencies = components[i].dependencies.filter(d => !options.ignore.includes(d));
+        }
+    }
+
     // Start with components with no dependencies
     let result = components.filter(c => !c.dependencies || !c.dependencies.length);
 
@@ -55,6 +62,25 @@ const reorderComponents = (components, options) => {
     }
 
     console.error(`SCAFFOLD: Error: circular/missing dependencies found. Please resolve these before importing, or set the --ignore-circular-dependencies argument.`);
+    for (let i = 0, len = workingSet.length; i < len; i++) {
+        const component = workingSet[i];
+        const missing = component.dependencies.filter(d => !components.find(c => c.name === d));
+        if (missing.length) {
+            if (missing.length === 1) {
+                console.error(`SCAFFOLD: Component '${component.name}' has an unmet dependency '${missing[0]}'.`);
+            } else {
+                console.error(`SCAFFOLD: Component '${component.name}' has unmet dependencies ['${missing.join("','")}'].`);
+            }
+        }
+        const circular = component.dependencies.filter(d => workingSet.find(c => c.name === d));
+        if (circular.length) {
+            if (circular.length === 1) {
+                console.error(`SCAFFOLD: Component '${component.name}' has a circular dependency on '${circular[0]}'.`);
+            } else {
+                console.error(`SCAFFOLD: Component '${component.name}' has circular dependencies on ['${circular.join("','")}'].`);
+            }
+        }
+    }
     process.exit(1);
 };
 
