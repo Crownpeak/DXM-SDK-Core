@@ -4814,7 +4814,7 @@ namespace Component_Library.Component_Project.Components
 			else
 			{
 				//return new Regex(@"\&lt;" + contentNodeName + @"(\w|\s|\=|""|-)*/&gt;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-				return new Regex(@"(?&lt;!\{)\{\s*[a-zA-Z][a-zA-Z0-9\s\w|:]*\}(?!\})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+				return new Regex(@"(?&lt;!\{)\{\s*[^0-9][a-zA-Z0-9\s\w|:]*\}(?!\})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 			}
 		}
 
