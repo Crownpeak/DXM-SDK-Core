@@ -42,23 +42,25 @@ const getPaths = (origin, url) => {
     };
 };
 
-const getRecursive = function(dir, extn) {
-    if (extn.substr(0,1) !== ".") extn = "." + extn;
-
+const getRecursive = function(dir, extns) {
+    if (!Array.isArray(extns)) extns = [extns];
     var results = [];
-    var list = fs.readdirSync(dir);
-    list.forEach(function(file) {
-        if (file !== "node_modules") {
-            file = dir + '/' + file;
-            var stat = fs.statSync(file);
-            if (stat && stat.isDirectory()) { 
-                results = results.concat(getRecursive(file, extn));
-            } else { 
-                if (file.slice(extn.length * -1) === extn) {
-                    results.push(file);
+    extns.forEach(function(extn) {
+        if (extn.substr(0,1) !== ".") extn = "." + extn;
+        var list = fs.readdirSync(dir);
+        list.forEach(function(file) {
+            if (file !== "node_modules") {
+                file = dir + '/' + file;
+                var stat = fs.statSync(file);
+                if (stat && stat.isDirectory()) { 
+                    results = results.concat(getRecursive(file, extn));
+                } else { 
+                    if (file.slice(extn.length * -1) === extn) {
+                        results.push(file);
+                    }
                 }
             }
-        }
+        });
     });
     return results;
 }
