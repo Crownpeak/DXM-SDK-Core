@@ -6,6 +6,7 @@ const reAssets = [
     /<(link)\s+(?:[^>]*?)href=((["']?)(.*?)\3)/ig,
     /(url)\s*\(\s*((["']?)([^)]*)\3)\s*\)/ig
 ];
+const reDuplicateAttributes = /([A-Za-z0-9-:]+?)\s*=\s*(["'])([^"']*?)\2([^>]*)\1\s*=\s*(["'])([^"]*)\5/;
 
 const colouriseErrors = () => {
     // See https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
@@ -122,11 +123,48 @@ const replaceAll = (source, original, replacement) => {
     return result;
 };
 
+let replacements = null;
+const replaceMarkup = (source) => {
+    if (!source || typeof(source) !== "string") return source;
+    if (!replacements) {
+        const cwd = process.env.INIT_CWD || path.resolve('.');
+        if (fs.existsSync(`${cwd}/.cpscaffold.json`)) {
+            const file = JSON.parse(fs.readFileSync(`${cwd}/.cpscaffold.json`));
+            if (file && file.replacements) {
+                replacements = file.replacements;
+            }
+        }
+        if (!replacements) replacements = {};
+    }
+    let result = source;
+    const keys = Object.keys(replacements);
+    for (let key of keys) {
+        const replacement = replacements[key];
+        const keyMatch = key.match(/^<([A-Za-z0-9.:-]+)>$/);
+        const replacementMatch = replacement.match(/^<.*?>$/);
+        if (keyMatch && replacementMatch) {
+            // Start tag plus attributes
+            result = result.replace(new RegExp(key.substr(0, key.length - 1) + "(.*?)" + ">", "g"), replacement.substr(0, replacement.length - 1) + "$1" + ">");
+            // Combine duplicate attributes
+            let match = result.match(reDuplicateAttributes);
+            while (match) {
+                result = result.replace(match[0], `${match[1]}="${match[3]} ${match[6]}"${match[4].trimEnd()}`);
+                match = result.match(reDuplicateAttributes);
+            }
+        } else {
+            // Simple replacement
+            result = result.replace(new RegExp(key, "g"), replacement);
+        }
+    }
+    return result;
+}
+
 module.exports = {
     colouriseErrors: colouriseErrors,
     colorizeErrors: colouriseErrors,
     getPaths: getPaths,
     getRecursive: getRecursive,
     isCoreComponent: isCoreComponent,
-    replaceAssets: replaceAssets
+    replaceAssets: replaceAssets,
+    replaceMarkup: replaceMarkup
 };
