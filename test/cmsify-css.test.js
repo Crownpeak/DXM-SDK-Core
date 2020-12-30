@@ -1,0 +1,92 @@
+const assert = require('assert');
+const utils = require('../src/crownpeak/utils');
+const fs = require('fs');
+const path = require('path');
+const cssParser = require('./example-css-parser');
+
+describe('Cmsify CSS', () => {
+    it('should find and replace a link tag on a component', () => {
+        const file = path.resolve('./test/fixtures/css1.html');
+        const content = fs.readFileSync(file, 'utf8');
+        const result = utils.replaceAssets(file, content, cssParser, true);
+        assert.strictEqual(result.uploads.length, 2);
+        assert.strictEqual(result.uploads[0].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[0].name, 'example.css');
+        assert.strictEqual(result.uploads[0].source, path.resolve('./test/fixtures/example.css'));
+        assert.strictEqual(result.uploads[0].content, "body { background-image: url(\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.png\").GetLink() %>\"); }");
+        assert.strictEqual(result.uploads[1].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[1].name, 'example.png');
+        assert.strictEqual(result.uploads[1].source, path.resolve('./test/fixtures/example.png'));
+        assert.strictEqual(result.content, "<link rel=\"stylesheet\" href=\"/cpt_internal/test/fixtures/example.css\">");
+    });
+    it('should find and replace a link tag on a non-component', () => {
+        const file = path.resolve('./test/fixtures/css1.html');
+        const content = fs.readFileSync(file, 'utf8');
+        const result = utils.replaceAssets(file, content, cssParser, false);
+        assert.strictEqual(result.uploads.length, 2);
+        assert.strictEqual(result.uploads[0].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[0].name, 'example.css');
+        assert.strictEqual(result.uploads[0].source, path.resolve('./test/fixtures/example.css'));
+        assert.strictEqual(result.uploads[0].content, "body { background-image: url(\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.png\").GetLink() %>\"); }");
+        assert.strictEqual(result.uploads[1].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[1].name, 'example.png');
+        assert.strictEqual(result.uploads[1].source, path.resolve('./test/fixtures/example.png'));
+        assert.strictEqual(result.content, "<link rel=\"stylesheet\" href=\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.css\").GetLink(LinkType.Include) %>\">");
+    });
+    it('should find and replace a link tag with a relative path on a component', () => {
+        const file = path.resolve('./test/fixtures/css2.html');
+        const content = fs.readFileSync(file, 'utf8');
+        const result = utils.replaceAssets(file, content, cssParser, true);
+        assert.strictEqual(result.uploads.length, 2);
+        assert.strictEqual(result.uploads[0].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[0].name, 'example.css');
+        assert.strictEqual(result.uploads[0].source, path.resolve('./test/fixtures/example.css'));
+        assert.strictEqual(result.uploads[0].content, "body { background-image: url(\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.png\").GetLink() %>\"); }");
+        assert.strictEqual(result.uploads[1].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[1].name, 'example.png');
+        assert.strictEqual(result.uploads[1].source, path.resolve('./test/fixtures/example.png'));
+        assert.strictEqual(result.content, "<link rel=\"stylesheet\" href=\"/cpt_internal/test/fixtures/example.css\">");
+    });
+    it('should find and replace a link tag with a relative path on a non-component', () => {
+        const file = path.resolve('./test/fixtures/css2.html');
+        const content = fs.readFileSync(file, 'utf8');
+        const result = utils.replaceAssets(file, content, cssParser, false);
+        assert.strictEqual(result.uploads.length, 2);
+        assert.strictEqual(result.uploads[0].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[0].name, 'example.css');
+        assert.strictEqual(result.uploads[0].source, path.resolve('./test/fixtures/example.css'));
+        assert.strictEqual(result.uploads[0].content, "body { background-image: url(\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.png\").GetLink() %>\"); }");
+        assert.strictEqual(result.uploads[1].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[1].name, 'example.png');
+        assert.strictEqual(result.uploads[1].source, path.resolve('./test/fixtures/example.png'));
+        assert.strictEqual(result.content, "<link rel=\"stylesheet\" href=\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.css\").GetLink(LinkType.Include) %>\">");
+    });
+    it('should find and replace a link tag with an absolute path on a component', () => {
+        const file = path.resolve('./test/fixtures/css3.html');
+        const content = fs.readFileSync(file, 'utf8');
+        const result = utils.replaceAssets(file, content, cssParser, true);
+        assert.strictEqual(result.uploads.length, 2);
+        assert.strictEqual(result.uploads[0].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[0].name, 'example.css');
+        assert.strictEqual(result.uploads[0].source, path.resolve('./test/fixtures/example.css'));
+        assert.strictEqual(result.uploads[0].content, "body { background-image: url(\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.png\").GetLink() %>\"); }");
+        assert.strictEqual(result.uploads[1].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[1].name, 'example.png');
+        assert.strictEqual(result.uploads[1].source, path.resolve('./test/fixtures/example.png'));
+        assert.strictEqual(result.content, "<link rel=\"stylesheet\" href=\"/cpt_internal/test/fixtures/example.css\">");
+    });
+    it('should find and replace a link tag with an absolute path on a non-component', () => {
+        const file = path.resolve('./test/fixtures/css3.html');
+        const content = fs.readFileSync(file, 'utf8');
+        const result = utils.replaceAssets(file, content, cssParser, false);
+        assert.strictEqual(result.uploads.length, 2);
+        assert.strictEqual(result.uploads[0].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[0].name, 'example.css');
+        assert.strictEqual(result.uploads[0].source, path.resolve('./test/fixtures/example.css'));
+        assert.strictEqual(result.uploads[0].content, "body { background-image: url(\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.png\").GetLink() %>\"); }");
+        assert.strictEqual(result.uploads[1].destination, 'test/fixtures/');
+        assert.strictEqual(result.uploads[1].name, 'example.png');
+        assert.strictEqual(result.uploads[1].source, path.resolve('./test/fixtures/example.png'));
+        assert.strictEqual(result.content, "<link rel=\"stylesheet\" href=\"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/test/fixtures/example.css\").GetLink(LinkType.Include) %>\">");
+    });
+});

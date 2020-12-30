@@ -124,8 +124,11 @@ const replaceAll = (source, original, replacement) => {
 };
 
 let replacements = null;
-const replaceMarkup = (source) => {
+const replaceMarkup = (source, temporaryReplacements = null) => {
     if (!source || typeof(source) !== "string") return source;
+    if (temporaryReplacements) {
+        replacements = temporaryReplacements;
+    }
     if (!replacements) {
         const cwd = process.env.INIT_CWD || path.resolve('.');
         if (fs.existsSync(`${cwd}/.cpscaffold.json`)) {
@@ -156,6 +159,7 @@ const replaceMarkup = (source) => {
             result = result.replace(new RegExp(key, "g"), replacement);
         }
     }
+    if (temporaryReplacements) replacements = null;
     return result;
 }
 
