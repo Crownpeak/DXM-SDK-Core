@@ -2,13 +2,20 @@ import CmsDataCache from '../common/cmsDataCache';
 import { ICmsDataProvider } from './ICmsDataProvider';
 
 export default class CmsStaticDataProvider implements ICmsDataProvider {
+  private _getPath(filename: string): string {
+    if (CmsDataCache.cmsStaticDataLocation && CmsDataCache.cmsStaticDataLocation.indexOf("$file") >= 0) {
+      return CmsDataCache.cmsStaticDataLocation.replace("$file", filename);
+    }
+    return CmsDataCache.cmsStaticDataLocation + '/' + filename;
+  }
+
   private async _getData(filename: string) {
-    return await (await fetch(CmsDataCache.cmsStaticDataLocation + '/' + filename)).json();
+    return await (await fetch(this._getPath(filename))).json();
   }
 
   private _getDataSync(filename: string) {
     const request = new XMLHttpRequest();
-    request.open('GET', CmsDataCache.cmsStaticDataLocation + '/' + filename, false);
+    request.open('GET', this._getPath(filename), false);
     request.send(null);
 
     if (request.status === 200) {
