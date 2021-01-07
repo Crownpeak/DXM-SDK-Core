@@ -19,6 +19,7 @@ the Single Page App developer in developing client-side applications that levera
 | 2.4.0         | 2020OCT09     | Improved uploading and relinking, new page and component creation settings, new --only option. Bug fixes. |
 | 3.0.0         | 2020NOV06     | Change to asynchronous data loading, drag and drop zone governance, new upgrade method. Bug fixes. |
 | 3.1.0         | 2021JAN04     | Add string replacements via .cpscaffold.json. |
+| 3.2.0         | 2021JAN07     | Add cp-scaffold for wrappers, option to include metadata on pages, $file macro in CMS_STATIC_CONTENT_LOCATION. |
 
 ## Credit
 Thanks to:
