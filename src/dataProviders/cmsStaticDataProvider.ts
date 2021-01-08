@@ -6,6 +6,9 @@ export default class CmsStaticDataProvider implements ICmsDataProvider {
     if (CmsDataCache.cmsStaticDataLocation && CmsDataCache.cmsStaticDataLocation.indexOf("$file") >= 0) {
       return CmsDataCache.cmsStaticDataLocation.replace("$file", filename);
     }
+    if (CmsDataCache.cmsStaticDataLocation && CmsDataCache.cmsStaticDataLocation.indexOf("{file}") >= 0) {
+      return CmsDataCache.cmsStaticDataLocation.replace("{file}", filename);
+    }
     return CmsDataCache.cmsStaticDataLocation + '/' + filename;
   }
 
