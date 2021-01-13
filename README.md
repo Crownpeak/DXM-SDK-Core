@@ -21,6 +21,7 @@ the Single Page App developer in developing client-side applications that levera
 | 3.1.0         | 2021JAN04     | Add string replacements via .cpscaffold.json. |
 | 3.2.0         | 2021JAN07     | Add cp-scaffold for wrappers, option to include metadata on pages, $file macro in CMS_STATIC_CONTENT_LOCATION. |
 | 3.2.1         | 2021JAN08     | Extra macro option using {file} in CMS_STATIC_CONTENT_LOCATION. |
+| 3.3.0         | 2021JAN13     | Add cmsDisableDragDrop option to mark components unsuitable for Drag and Drop. |
 
 ## Credit
 Thanks to:
