@@ -2,6 +2,15 @@ import CmsDataCache from '../common/cmsDataCache';
 import { ICmsDataProvider } from './ICmsDataProvider';
 
 export default class CmsStaticDataProvider implements ICmsDataProvider {
+  private async fetchWithTimeout(resource: string, timeout: number) {
+    const options = {timeout};
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch(resource, {...options, signal: controller.signal});
+    clearTimeout(id);
+    return response;
+  }
+
   private _getPath(filename: string): string {
     if (CmsDataCache.cmsStaticDataLocation && CmsDataCache.cmsStaticDataLocation.indexOf("$file") >= 0) {
       return CmsDataCache.cmsStaticDataLocation.replace("$file", filename);
@@ -12,8 +21,11 @@ export default class CmsStaticDataProvider implements ICmsDataProvider {
     return CmsDataCache.cmsStaticDataLocation + '/' + filename;
   }
 
-  private async _getData(filename: string) {
-    return await (await fetch(this._getPath(filename))).json();
+  private async _getData(filename: string, timeout?: number) {
+    if (timeout && timeout > 0)
+      return await (await this.fetchWithTimeout(this._getPath(filename), timeout)).json();
+    else
+      return await (await fetch(this._getPath(filename))).json();
   }
 
   private _getDataSync(filename: string) {
@@ -26,8 +38,8 @@ export default class CmsStaticDataProvider implements ICmsDataProvider {
     }
   }
 
-  async getSingleAsset(assetId: number) {
-    const data = await this._getData(assetId + '.json');
+  async getSingleAsset(assetId: number, timeout?: number) {
+    const data = await this._getData(assetId + '.json', timeout);
     CmsDataCache.set(assetId, data || {});
     return data;
   }
@@ -38,8 +50,8 @@ export default class CmsStaticDataProvider implements ICmsDataProvider {
     return data;
   }
 
-  async getCustomData(filename: string) {
-    return await this._getData(filename);
+  async getCustomData(filename: string, timeout?: number) {
+    return await this._getData(filename, timeout);
   }
 
   getCustomDataSync(filename: string) {

@@ -2,7 +2,7 @@ import CmsDataCache from '../common/cmsDataCache';
 import { ICmsDataProvider } from './ICmsDataProvider';
 
 export default class CmsNullDataProvider implements ICmsDataProvider {
-  async getSingleAsset(assetId: number) {
+  async getSingleAsset(assetId: number, timeout?: number) {
     CmsDataCache.set(assetId, {});
   }
 
