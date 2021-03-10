@@ -31,7 +31,11 @@ export default class CmsField extends String {
     return this.data();
   }
 
-  data() {
+  map(...args: any[]) {
+    return this.data().map(...args);
+  }
+
+  data(): any {
     if (typeof(this.value) !== "undefined" 
       && this.value !== null 
       && !(typeof(this.value) === "number" && isNaN(this.value)))
