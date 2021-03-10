@@ -15,6 +15,7 @@ export default class CmsDataCache {
     return result ?? {};
   }
   static set(assetId: number, data: any): void {
+    if (data && data.DropZones && typeof data.DropZones === "string") data.DropZones = JSON.parse(data.DropZones);
     CmsDataCache.data[assetId] = data;
   }
 
