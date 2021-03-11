@@ -43,8 +43,10 @@ const getPaths = (origin, url) => {
     };
 };
 
-const getRecursive = function(dir, extns) {
+const getRecursive = function(dir, extns, excludes = []) {
     if (!Array.isArray(extns)) extns = [extns];
+    if (!Array.isArray(excludes)) excludes = [excludes];
+    excludes = excludes.map(exclude => path.resolve(dir, exclude).replace(/\\/g, "/"));
     var results = [];
     extns.forEach(function(extn) {
         if (extn.substr(0,1) !== ".") extn = "." + extn;
@@ -52,12 +54,14 @@ const getRecursive = function(dir, extns) {
         list.forEach(function(file) {
             if (file !== "node_modules") {
                 file = dir + '/' + file;
-                var stat = fs.statSync(file);
-                if (stat && stat.isDirectory()) { 
-                    results = results.concat(getRecursive(file, extn));
-                } else { 
-                    if (file.slice(extn.length * -1) === extn) {
-                        results.push(file);
+                if (!excludes.some(exclude => exclude.length > 0 && exclude.slice(0, file.length) === file.replace(/\\/g, "/"))) {
+                    var stat = fs.statSync(file);
+                    if (stat && stat.isDirectory()) { 
+                        results = results.concat(getRecursive(file, extn));
+                    } else { 
+                        if (file.slice(extn.length * -1) === extn) {
+                            results.push(file);
+                        }
                     }
                 }
             }
