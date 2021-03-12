@@ -24,22 +24,29 @@ const colouriseErrors = () => {
     }
 };
 
-const getPaths = (origin, url) => {
+const getPaths = (origin, url, alternativePrefixes = []) => {
+    if (!Array.isArray(alternativePrefixes)) alternativePrefixes = [alternativePrefixes];
     const filename = path.basename(url);
     const root = getRoot();
     let filepath = "";
-    if (url.indexOf("/") === 0)
+    let alternativePaths = [];
+    if (url.indexOf("/") === 0) {
         filepath = path.join(root, url);
-    else if (url.indexOf("~/") === 0 || url.indexOf("@/") === 0)
+        alternativePaths = alternativePrefixes.map(prefix => path.join(root, prefix, url));
+    } else if (url.indexOf("~/") === 0 || url.indexOf("@/") === 0) {
         filepath = path.join(root, url.substr(1));
-    else
+        alternativePaths = alternativePrefixes.map(prefix => path.join(root, prefix, url.substr(1)));
+    } else {
         filepath = path.resolve(path.dirname(origin), url);
+        alternativePaths = alternativePrefixes.map(prefix => path.join(path.dirname(origin), prefix, url));
+    }
     let folder = path.dirname(filepath).substr(root.length + 1).replace(/\\/g, "/") + "/";
     if (folder === "/") folder = "";
     return {
         path: filepath,
         folder: folder,
-        filename: filename
+        filename: filename,
+        alternativePaths
     };
 };
 
@@ -74,7 +81,8 @@ const isCoreComponent = (type) => {
     return ["code","color","date","document","href","image","src","text","video","wysiwyg"].indexOf((type || "").toLowerCase()) >= 0;
 };
 
-const replaceAssets = (file, content, cssParser, isComponent = false) => {
+const replaceAssets = (file, content, cssParser, isComponent = false, alternativePathPrefixes = []) => {
+    if (!Array.isArray(alternativePathPrefixes)) alternativePathPrefixes = [alternativePathPrefixes];
     let result = content;
     let uploads = [];
 
@@ -85,8 +93,16 @@ const replaceAssets = (file, content, cssParser, isComponent = false) => {
                 let url = matches[4];
                 if (url && url.indexOf("http") < 0 && url.indexOf("//") < 0) {
                     //console.log(`Found candidate ${url}`);
-                    const { path: filepath, folder: dir, filename } = getPaths(file, url);
-                    if (fs.existsSync(filepath)) {
+                    let { path: filepath, folder: dir, filename, alternativePaths } = getPaths(file, url, alternativePathPrefixes);
+                    let fileExists = fs.existsSync(filepath);
+                    if (!fileExists) {
+                        const alternate = alternativePaths.find(p => fs.existsSync(p));
+                        if (alternate) {
+                            fileExists = true;
+                            filepath = alternate;
+                        }
+                    }
+                    if (fileExists) {
                         let replacement = isComponent
                             ? `"/cpt_internal/${dir}${filename}"`
                             : `"<%= Asset.Load(Asset.GetSiteRoot(asset).AssetPath + \"/${dir}${filename}\").GetLink(LinkType.Include) %>"`;
