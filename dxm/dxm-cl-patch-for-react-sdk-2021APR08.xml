@@ -2534,7 +2534,7 @@ namespace Component_Library.Component_Project.Components
 			sbInsertAndUpdateContent.AppendLine();
 			sbInsertAndUpdateContent.AppendLine(tab + "var indexedFields = new List&lt;IndexedField&gt;();");
 			sbInsertAndUpdateContent.AppendLine(sbSearchG2IndexedFieldsContent.ToString());
-			sbInsertAndUpdateContent.AppendLine(tab + "indexedFields.ForEach(f =&gt; doc.Add(f.Name, f.FieldName.ToLowerInvariant()));");
+			sbInsertAndUpdateContent.AppendLine(tab + "indexedFields.ForEach(f =&gt; doc.AddFixed(f.Name, Util.ReplaceAttachments(Util.ReplaceCptInternals(asset.Raw[f.FieldName.ToLowerInvariant()]))));");
 			sbInsertAndUpdateContent.AppendLine();
 			sbInsertAndUpdateContent.AppendLine(tab + "context.JsonParams.Add(doc);");
 			/*****************END BUILDING SEARCH G2****************/
