@@ -4534,7 +4534,9 @@ namespace Component_Library.Component_Project.Components
 			var assetPath = asset.AssetPath;
 			if (assetPath.Count &gt;= projectPath.Count &amp;&amp; !assetPath.ToString().StartsWith(projectPath.ToString()))
 			{
-				return Asset.Load("/" + string.Join("/", assetPath.Take(projectPath.Count)));
+				var path = "/" + string.Join("/", assetPath.Take(projectPath.Count));
+				if (Asset.Load(path + "/Component Library/Component Library Config").IsLoaded)
+					return Asset.Load(path);
 			}
 			return project;
 		}
