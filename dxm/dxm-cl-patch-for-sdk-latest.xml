@@ -11120,7 +11120,7 @@ namespace Component_Library.Component_Project.Components
 			//The below function refers the automatically generated output functionality for this component.
 			//If you wish to alter the the output functionality write your own output code here.
 			//NOTE: It is important to handle cases where the asset AND OR the context will be null in your custom code
-			return JsonHelper.StringToJson(asset.Raw[name + index], includeQuotes:true);
+			return JsonHelper.StringToJson(Util.ReplaceAttachments(Util.ReplaceCptInternals(asset.Raw[name + index])), includeQuotes:true);
 		}
 
 		/*comment out "IndexedFieldsBase(asset, context, name, index);" &amp; modify this function if you want to overwrite the indexed fields of the component.*/
