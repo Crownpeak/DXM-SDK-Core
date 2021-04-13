@@ -2,11 +2,14 @@ import CmsDataCache from '../common/cmsDataCache';
 import { ICmsDataProvider } from './ICmsDataProvider';
 
 export default class CmsStaticDataProvider implements ICmsDataProvider {
-  private async fetchWithTimeout(resource: string, timeout: number) {
-    const options = {timeout};
+  public static beforeLoadingData?: (options: XMLHttpRequest | RequestInit) => void;
+  private _preload?: (options: XMLHttpRequest | RequestInit) => void;
+
+  private async fetchWithTimeout(resource: string, options: RequestInit, timeout: number) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-    const response = await fetch(resource, {...options, signal: controller.signal});
+    options.signal = controller.signal;
+    const response = await fetch(resource, options);
     clearTimeout(id);
     return response;
   }
@@ -22,15 +25,20 @@ export default class CmsStaticDataProvider implements ICmsDataProvider {
   }
 
   private async _getData(filename: string, timeout?: number) {
+    const options: RequestInit = {};
+    if (CmsStaticDataProvider.beforeLoadingData) CmsStaticDataProvider.beforeLoadingData(options);
+    if (this._preload) this._preload(options);
     if (timeout && timeout > 0)
-      return await (await this.fetchWithTimeout(this._getPath(filename), timeout)).json();
+      return await (await this.fetchWithTimeout(this._getPath(filename), options, timeout)).json();
     else
-      return await (await fetch(this._getPath(filename))).json();
+      return await (await fetch(this._getPath(filename), options)).json();
   }
 
   private _getDataSync(filename: string) {
     const request = new XMLHttpRequest();
     request.open('GET', this._getPath(filename), false);
+    if (CmsStaticDataProvider.beforeLoadingData) CmsStaticDataProvider.beforeLoadingData(request);
+    if (this._preload) this._preload(request);
     request.send(null);
 
     if (request.status === 200) {
@@ -56,5 +64,9 @@ export default class CmsStaticDataProvider implements ICmsDataProvider {
 
   getCustomDataSync(filename: string) {
     return this._getDataSync(filename);
+  }
+
+  setPreLoad(fn?: (options: XMLHttpRequest | RequestInit) => void): void {
+    this._preload = fn;
   }
 }

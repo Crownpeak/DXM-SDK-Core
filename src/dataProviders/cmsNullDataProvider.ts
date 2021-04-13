@@ -9,4 +9,7 @@ export default class CmsNullDataProvider implements ICmsDataProvider {
   getSingleAssetSync(assetId: number) {
     CmsDataCache.set(assetId, {});
   }
+
+  setPreLoad(_fn?: (_options: XMLHttpRequest | RequestInit) => void): void {
+  }
 }
