@@ -94,10 +94,13 @@ const replaceAssets = (file, content, cssParser, isComponent = false, alternativ
                 if (url && url.indexOf("http") < 0 && url.indexOf("//") < 0) {
                     //console.log(`Found candidate ${url}`);
                     let { path: filepath, folder: dir, filename, alternativePaths } = getPaths(file, url, alternativePathPrefixes);
+                    let prefix = "";
                     let fileExists = fs.existsSync(filepath);
                     if (!fileExists) {
-                        const alternate = alternativePaths.find(p => fs.existsSync(p));
-                        if (alternate) {
+                        const alternateIndex = alternativePaths.findIndex(p => fs.existsSync(p));
+                        if (alternateIndex >= 0) {
+                            const alternate = alternativePaths[alternateIndex];
+                            prefix = alternativePathPrefixes[alternateIndex] + "/";
                             fileExists = true;
                             filepath = alternate;
                         }
@@ -110,7 +113,7 @@ const replaceAssets = (file, content, cssParser, isComponent = false, alternativ
                         result = replaceAll(result, matches[2], replacement);
                         if (matches[1] === "link" && fs.lstatSync(filepath).isFile()) {
                             // If this is CSS, it needs to be parsed separately
-                            const result = cssParser.parse(filepath, fs.readFileSync(filepath, "utf8"), "");
+                            const result = cssParser.parse(filepath, fs.readFileSync(filepath, "utf8"), "", prefix);
                             if (result.content && result.uploads && result.uploads.length) {
                                 uploads.push({source: filepath, name: filename, destination: dir, content: result.content});
                                 uploads = uploads.concat(result.uploads);
