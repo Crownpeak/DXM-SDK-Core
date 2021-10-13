@@ -631,6 +631,26 @@ const getProjectPath = async () => {
     return projectPath;
 };
 
+const getTrunkProjectPath = async () => {
+    const projectPath = await getProjectPath();
+    const models = await get(`${projectPath}Models`);
+    if (models && models.asset) {
+        const children = await getList(models.asset.id);
+        if (children && children.assets && children.assets.length > 0) {
+            // Re-load by ID to get its real path
+            const child = await get(children.assets[0].id);
+            if (child && child.asset) {
+                const path = child.asset.fullPath;
+                var modelsIndex = path.indexOf("/Models/");
+                if (modelsIndex >= 0) {
+                    return path.substr(0, modelsIndex + 1);
+                }
+            }
+        }
+    }
+    return projectPath;
+}
+
 const getLibraryFolder = async () => {
     const projectPath = await getProjectPath();
     const result = await get(`${projectPath}Library`);
@@ -675,21 +695,33 @@ const getTemplatesFolder = async () => {
 
 const getComponentDefinitionModel = async () => {
     const projectPath = await getProjectPath();
-    const result = await get(`${projectPath}Models/Component Definition Folder/Enhanced Component`);
+    let result = await get(`${projectPath}Models/Component Definition Folder/Enhanced Component`);
+    if (!result || !result.asset) {
+        const trunkProjectPath = await getTrunkProjectPath();
+        result = await get(`${trunkProjectPath}Models/Component Definition Folder/Enhanced Component`);
+    }
     if (!result || !result.asset) throw "Unable to find 'Enhanced Component' model";
     return result.asset;
 };
 
 const getTemplateDefinitionModel = async () => {
     const projectPath = await getProjectPath();
-    const result = await get(`${projectPath}Models/Template Definition Folder/Enhanced Template`);
+    let result = await get(`${projectPath}Models/Template Definition Folder/Enhanced Template`);
+    if (!result || !result.asset) {
+        const trunkProjectPath = await getTrunkProjectPath();
+        result = await get(`${trunkProjectPath}Models/Template Definition Folder/Enhanced Template`);
+    }
     if (!result || !result.asset) throw "Unable to find 'Enhanced Template' model";
     return result.asset;
 };
 
 const getWrapperDefinitionModel = async () => {
     const projectPath = await getProjectPath();
-    const result = await get(`${projectPath}Models/Nav Wrapper Definition Folder/Wrapper`);
+    let result = await get(`${projectPath}Models/Nav Wrapper Definition Folder/Wrapper`);
+    if (!result || !result.asset) {
+        const trunkProjectPath = await getTrunkProjectPath();
+        result = await get(`${trunkProjectPath}Models/Nav Wrapper Definition Folder/Wrapper`);
+    }
     if (!result || !result.asset) throw "Unable to find 'Wrapper' model";
     return result.asset;
 };
