@@ -1,6 +1,6 @@
 {
   "name": "crownpeak-dxm-sdk-core",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "Crownpeak Digital Experience Management (DXM) Software Development Kits (SDK) have been constructed to assist the Single Page App developer in developing client-side applications that leverage DXM for content management purposes.",
   "repository": "https://github.com/Crownpeak/DXM-SDK-Core",
   "main": "lib/entry.js",
@@ -10,10 +10,11 @@
     "node": ">=12"
   },
   "files": [
-    "lib/**/*", "dxm/dxm-cl-patch-for-sdk-latest.xml"
+    "lib/**/*",
+    "dxm/dxm-cl-patch-for-sdk-latest.xml"
   ],
   "dependencies": {
-    "crownpeak-dxm-accessapi-helper": "^1.0.5",
+    "crownpeak-dxm-accessapi-helper": "^1.0.6",
     "minimist": "^1.2.5",
     "xml2js": "^0.4.23"
   },

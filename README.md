@@ -23,6 +23,7 @@ the Single Page App developer in developing client-side applications that levera
 | 3.2.1         | 2021JAN08     | Extra macro option using {file} in CMS_STATIC_CONTENT_LOCATION. |
 | 3.3.0         | 2021JAN13     | Add cmsDisableDragDrop option to mark components unsuitable for Drag and Drop. |
 | 3.4.0         | 2021MAR15     | Updates to support Gatsby, extraction of WCO snippets, bug fixes. |
+| 3.5.0         | 2021OCT15     | Template Builder supports default template files, preload event for Data Provider, bug fixes. |
 
 ## Credit
 Thanks to:
