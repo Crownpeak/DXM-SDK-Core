@@ -680,7 +680,7 @@ const getWrapperDefinitionFolder = async () => {
 };
 
 const getModelsFolder = async () => {
-    const projectPath = await getProjectPath();
+    const projectPath = await getTrunkProjectPath();
     const result = await get(`${projectPath}Models`);
     if (!result || !result.asset) throw "Unable to find 'Models' folder";
     return result.asset;
