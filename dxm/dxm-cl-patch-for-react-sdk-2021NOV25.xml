@@ -3781,6 +3781,7 @@ namespace Component_Library.Component_Project.Components
 					String wrapInControlGroup = pe["component_component_form_override_type"];
 					String messageContent = pe["component_component_message_content"];
 					String messageType = pe["component_component_message_type"];
+					if (string.IsNullOrWhiteSpace(messageType)) messageType = "basic";
 					String codeSnippet = String.IsNullOrWhiteSpace(pe["component_component_hardcoded_snippet"]) ? "\"\"" : pe["component_component_hardcoded_snippet"];
 					String componentHtml = getContentPlaceholderMarkup(fieldName, ContentNodeType.Content, asset["markup"]);
 
@@ -3897,6 +3898,7 @@ namespace Component_Library.Component_Project.Components
 					String maxPanels = String.IsNullOrWhiteSpace(pe["max_panels"]) ? "null" : pe["max_panels"];
 					String listMessageContent = pe["component_list_message_content"];
 					String listMessageType = pe["component_list_message_type"];
+					if (string.IsNullOrWhiteSpace(listMessageType)) listMessageType = "basic";
 					String subPanelEntryName = getNextComponentPanelDepth(currentPanelName);
 					List&lt;PanelEntry&gt; subPanelEntryList = pe.GetPanels(subPanelEntryName);
 					StringBuilder sbComponentHardcodedCode = new StringBuilder();
@@ -3932,6 +3934,7 @@ namespace Component_Library.Component_Project.Components
 							subItemLabel = subListLabel;
 							String subListMessageContent = subPanelEntry["component_list_message_content"];
 							String subListMessageType = subPanelEntry["component_list_message_type"];
+							if (string.IsNullOrWhiteSpace(subListMessageType)) subListMessageType = "basic";
 							String subListMinPanels = String.IsNullOrWhiteSpace(subPanelEntry["min_panels"]) ? "null" : subPanelEntry["min_panels"];
 							String subListMaxPanels = String.IsNullOrWhiteSpace(subPanelEntry["max_panels"]) ? "null" : subPanelEntry["max_panels"];
 
@@ -3986,6 +3989,7 @@ namespace Component_Library.Component_Project.Components
 							String subComponentWrapInControlGroup = subPanelEntry["component_component_form_override_type"];
 							String subComponentMessageContent = subPanelEntry["component_component_message_content"];
 							String subComponentMessageType = subPanelEntry["component_component_message_type"];
+							if (string.IsNullOrWhiteSpace(subComponentMessageType)) subComponentMessageType = "basic";
 							String subComponentHardcodedSnippet = String.IsNullOrWhiteSpace(subPanelEntry["component_component_hardcoded_snippet"]) ? "\"\"" : subPanelEntry["component_component_hardcoded_snippet"];
 							String subComponentHtml = getContentPlaceholderMarkup(subComponentLabel, ContentNodeType.Content, asset["markup"]);
 
@@ -4330,6 +4334,7 @@ namespace Component_Library.Component_Project.Components
 			String maxPanels = String.IsNullOrWhiteSpace(pe["max_panels"]) ? "null" : pe["max_panels"];
 			String listMessageContent = pe["component_list_message_content"];
 			String listMessageType = pe["component_list_message_type"];
+			if (string.IsNullOrWhiteSpace(listMessageType)) listMessageType = "basic";
 			String subPanelEntryName = getNextComponentPanelDepth(currentPanelName);
 			List&lt;PanelEntry&gt; subPanelEntryList = pe.GetPanels(subPanelEntryName);
 			StringBuilder sbComponentHardcodedCode = new StringBuilder();
@@ -4361,6 +4366,7 @@ namespace Component_Library.Component_Project.Components
 					String subListLabel = subPanelEntry["component_list_label"];
 					String subListMessageContent = subPanelEntry["component_list_message_content"];
 					String subListMessageType = subPanelEntry["component_list_message_type"];
+					if (string.IsNullOrWhiteSpace(subListMessageType)) subListMessageType = "basic";
 					String subListMinPanels = String.IsNullOrWhiteSpace(subPanelEntry["min_panels"]) ? "null" : subPanelEntry["min_panels"];
 					String subListMaxPanels = String.IsNullOrWhiteSpace(subPanelEntry["max_panels"]) ? "null" : subPanelEntry["max_panels"];
 
@@ -4405,6 +4411,7 @@ namespace Component_Library.Component_Project.Components
 					String subComponentWrapInControlGroup = subPanelEntry["component_component_form_override_type"];
 					String subComponentMessageContent = subPanelEntry["component_component_message_content"];
 					String subComponentMessageType = subPanelEntry["component_component_message_type"];
+					if (string.IsNullOrWhiteSpace(subComponentMessageType)) subComponentMessageType = "basic";
 					String subComponentHardcodedSnippet = String.IsNullOrWhiteSpace(subPanelEntry["component_component_hardcoded_snippet"]) ? "\"\"" : subPanelEntry["component_component_hardcoded_snippet"];
 					String subComponentHtml = getContentPlaceholderMarkup(subComponentLabel, ContentNodeType.Content, asset["markup"]);
 
