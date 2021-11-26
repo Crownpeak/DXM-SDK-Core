@@ -1750,7 +1750,7 @@ namespace Component_Library.Component_Project.Components
 	{
 		public static void InputHelper(Asset asset, InputContext context)
 		{
-			String componentLibraryProjectTemplateFolderPath = ComponentLibraryHelper.getComponentLibraryProjectFolder(asset).AssetPath + "/Templates";
+			Asset componentLibraryProjectTemplatesFolder = InitializeTemplateFolder(asset);
 			String SiteRootFolderPath = ComponentLibraryHelper.getcomponentLibraryRootFolder(asset).AssetPath.ToString();
 			String ComponentsFolderPath = ComponentLibraryHelper.getComponentLibraryComponentsFolder(asset).ToString();
 			string libraryPath = ComponentLibraryHelper.getComponentLibraryComponentsFolder(asset).AssetPath.ToString();
@@ -1794,7 +1794,10 @@ namespace Component_Library.Component_Project.Components
 			Input.NextTabbedPanel();
 			Input.ShowCheckBox("Create", "create", "yes", "yes");
 			Input.ShowTextBox("Template Name", "template_name", asset.Label.Replace(" Template", "") + " Template");
-			Input.ShowSelectFolder("Template Folder", "template_folder", componentLibraryProjectTemplateFolderPath); //Asset.Load(asset.TemplateId).Parent.AssetPath);       
+			Input.StartExpandPanel("Template File Settings");
+			Input.ShowCheckBox("", "do_not_overwrite_post_save", "do_not_overwrite", "Do not overwrite the post_save.aspx template file");
+			Input.EndExpandPanel();
+			Input.ShowSelectFolder("Template Folder", "template_folder", componentLibraryProjectTemplatesFolder.AssetPath);
 			Input.ShowAcquireDocument("Select preview asset", "previewAsset", SiteRootFolderPath + "/_templates");
 			Input.ShowCheckBox("JSON Template?", "json_template", "yes", "Yes", helpMessage: "When checked, the generated template will include JSON output and Search G2.");
 			Input.ShowCheckBox("Enable Page Metadata", "meta", "yes", "yes");
@@ -1831,6 +1834,17 @@ namespace Component_Library.Component_Project.Components
 			}
 
 			Input.EndTabbedPanel();
+		}
+
+		private static Asset InitializeTemplateFolder(Asset asset)
+		{
+			Asset componentLibraryProjectTemplatesFolder = Asset.Load(ComponentLibraryHelper.getComponentLibraryProjectFolder(asset).AssetPath + "/Templates");
+			if (string.IsNullOrEmpty(asset["template_folder"]) &amp;&amp; componentLibraryProjectTemplatesFolder != null &amp;&amp; componentLibraryProjectTemplatesFolder.IsLoaded)
+			{
+				asset["template_folder"] = componentLibraryProjectTemplatesFolder.GetLink(LinkType.Internal);
+			}
+
+			return componentLibraryProjectTemplatesFolder;
 		}
 
 		public static void OutputHelper(Asset asset, OutputContext context)
@@ -2803,14 +2817,17 @@ namespace Component_Library.Component_Project.Components
 						searchG2UpdateAsset = Asset.CreateNewAsset("search_g2_update.aspx", folderAsset, modelAsset, contentFields);
 					}
 
-					//Post save currently in "enable_tmf" because only used for TMF currently, should be moved out eventually
-					modelAsset = Asset.LoadDirect("/System/Templates/Basis/ComponentsCS/post_save.aspx");
-					contentFields = new Dictionary&lt;string, string&gt; { { "body", asset.Raw["postSaveBody"] } };
-					Asset postSaveAsset = Asset.Load(folderAsset.AssetPath + "/post_save.aspx");
-					if (postSaveAsset.IsLoaded) postSaveAsset.Delete();
-					if (asset["enable_tmf"] == "yes")
+					if (asset["do_not_overwrite_post_save"] != "do_not_overwrite")
 					{
-						postSaveAsset = Asset.CreateNewAsset("post_save.aspx", folderAsset, modelAsset, contentFields);
+						//Post save currently in "enable_tmf" because only used for TMF currently, should be moved out eventually
+						modelAsset = Asset.LoadDirect("/System/Templates/Basis/ComponentsCS/post_save.aspx");
+						contentFields = new Dictionary&lt;string, string&gt; { { "body", asset.Raw["postSaveBody"] } };
+						Asset postSaveAsset = Asset.Load(folderAsset.AssetPath + "/post_save.aspx");
+						if (postSaveAsset.IsLoaded) postSaveAsset.Delete();
+						if (asset["enable_tmf"] == "yes")
+						{
+							postSaveAsset = Asset.CreateNewAsset("post_save.aspx", folderAsset, modelAsset, contentFields);
+						}
 					}
 
 					modelAsset = Asset.LoadDirect("/System/Templates/Basis/ComponentsCS/output.aspx");
@@ -6526,7 +6543,7 @@ namespace Component_Library.Component_Project.Components
 	{
 		public static void InputHelper(Asset asset, InputContext context)
 		{
-			String componentLibraryProjectTemplateFolderPath = ComponentLibraryHelper.getComponentLibraryProjectFolder(asset).AssetPath + "/Templates";
+			Asset componentLibraryProjectTemplatesFolder = InitializeTemplateFolder(asset);
 			String SiteRootFolderPath = ComponentLibraryHelper.getcomponentLibraryRootFolder(asset).AssetPath.ToString();
 			String ComponentsFolderPath = ComponentLibraryHelper.getComponentLibraryComponentsFolder(asset).ToString();
 			string libraryPath = ComponentLibraryHelper.getComponentLibraryComponentsFolder(asset).AssetPath.ToString();
@@ -6634,7 +6651,10 @@ namespace Component_Library.Component_Project.Components
 			Input.NextTabbedPanel();
 			Input.ShowCheckBox("Create", "create", "yes", "yes");
 			Input.ShowTextBox("Template Name", "template_name", asset.Label.Replace(" Template", "") + " Template");
-			Input.ShowSelectFolder("Template Folder", "template_folder", componentLibraryProjectTemplateFolderPath); //Asset.Load(asset.TemplateId).Parent.AssetPath);       
+			Input.StartExpandPanel("Template File Settings");
+			Input.ShowCheckBox("", "do_not_overwrite_post_save", "do_not_overwrite", "Do not overwrite the post_save.aspx template file");
+			Input.EndExpandPanel();
+			Input.ShowSelectFolder("Template Folder", "template_folder", componentLibraryProjectTemplatesFolder.AssetPath);
 			Input.ShowAcquireDocument("Select preview asset", "previewAsset", SiteRootFolderPath + "/_templates");
 			Input.ShowCheckBox("Enable Page Metadata", "meta", "yes", "yes");
 			Input.ShowCheckBox("Enable Page specific JavaScript and CSS", "custom_js_css", "yes", "yes");
@@ -6663,6 +6683,17 @@ namespace Component_Library.Component_Project.Components
 			}
 
 			Input.EndTabbedPanel();
+		}
+
+		private static Asset InitializeTemplateFolder(Asset asset)
+		{
+			Asset componentLibraryProjectTemplatesFolder = Asset.Load(ComponentLibraryHelper.getComponentLibraryProjectFolder(asset).AssetPath + "/Templates");
+			if (string.IsNullOrEmpty(asset["template_folder"]) &amp;&amp; componentLibraryProjectTemplatesFolder != null &amp;&amp; componentLibraryProjectTemplatesFolder.IsLoaded)
+			{
+				asset["template_folder"] = componentLibraryProjectTemplatesFolder.GetLink(LinkType.Internal);
+			}
+
+			return componentLibraryProjectTemplatesFolder;
 		}
 
 		public static void OutputHelper(Asset asset, OutputContext context)
@@ -7538,14 +7569,17 @@ namespace Component_Library.Component_Project.Components
 						outputAsset = Asset.CreateNewAsset("output.aspx", folderAsset, modelAsset, contentFields);
 					}
 
-					//Post save currently in "enable_tmf" because only used for TMF currently, should be moved out eventually
-					modelAsset = Asset.LoadDirect("/System/Templates/Basis/ComponentsCS/post_save.aspx");
-					contentFields = new Dictionary&lt;string, string&gt; { { "body", asset.Raw["postSaveBody"] } };
-					Asset postSaveAsset = Asset.Load(folderAsset.AssetPath + "/post_save.aspx");
-					if (postSaveAsset.IsLoaded) postSaveAsset.Delete();
-					if (asset["enable_tmf"] == "yes")
+					if (asset["do_not_overwrite_post_save"] != "do_not_overwrite")
 					{
-						postSaveAsset = Asset.CreateNewAsset("post_save.aspx", folderAsset, modelAsset, contentFields);
+						//Post save currently in "enable_tmf" because only used for TMF currently, should be moved out eventually
+						modelAsset = Asset.LoadDirect("/System/Templates/Basis/ComponentsCS/post_save.aspx");
+						contentFields = new Dictionary&lt;string, string&gt; { { "body", asset.Raw["postSaveBody"] } };
+						Asset postSaveAsset = Asset.Load(folderAsset.AssetPath + "/post_save.aspx");
+						if (postSaveAsset.IsLoaded) postSaveAsset.Delete();
+						if (asset["enable_tmf"] == "yes")
+						{
+							postSaveAsset = Asset.CreateNewAsset("post_save.aspx", folderAsset, modelAsset, contentFields);
+						}
 					}
 
 					modelAsset = Asset.LoadDirect("/System/Templates/Basis/ComponentsCS/output.aspx");
