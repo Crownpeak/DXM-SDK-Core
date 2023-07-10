@@ -25,6 +25,7 @@ the Single Page App developer in developing client-side applications that levera
 | 3.4.0         | 2021MAR15     | Updates to support Gatsby, extraction of WCO snippets, bug fixes. |
 | 3.5.0         | 2021OCT15     | Template Builder supports default template files, preload event for Data Provider, bug fixes. |
 | 3.5.1         | 2021OCT27     | Bug fix for error when updating a model inside a project branch. |
+| 3.6.0         | 2023-07-10    | Bump DXM Access API helper version to remove vulnerable dependencies. |
 
 ## Credit
 Thanks to:
